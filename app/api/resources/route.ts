@@ -47,9 +47,20 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'File URL is required for PDF type' }, { status: 400 });
         }
 
-        let resourceData: any = {
+        const resourceData: {
+            name: string;
+            contentType: 'LINK' | 'IMAGE' | 'PDF' | 'TEXT';
+            topicId: string;
+            userId?: string;
+            username?: string;
+            url?: string;
+            description?: string;
+            textContent?: string;
+            fileUrl?: string;
+            imageUrl?: string;
+        } = {
             name,
-            contentType: contentType || 'LINK',
+            contentType: (contentType || 'LINK') as 'LINK' | 'IMAGE' | 'PDF' | 'TEXT',
             topicId,
             userId: userId || undefined,
             username: username || undefined,
@@ -136,7 +147,7 @@ export async function DELETE(request: Request) {
 export async function PATCH(request: Request) {
     try {
         const body = await request.json();
-        const { id, userId, name, url } = body;
+        const { id, userId, name, url, description, textContent } = body;
 
         if (!id || !userId) {
             return NextResponse.json({ error: 'Resource ID and User ID are required' }, { status: 400 });
@@ -155,13 +166,24 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
 
-        // Fetch new metadata if URL changed
-        let updateData: any = {};
+        // Build update data
+        const updateData: {
+            name?: string;
+            url?: string;
+            description?: string;
+            imageUrl?: string;
+            textContent?: string;
+        } = {};
+
         if (name) updateData.name = name;
+        if (textContent !== undefined) updateData.textContent = textContent;
+        if (description !== undefined) updateData.description = description;
+
+        // Fetch new metadata if URL changed
         if (url && url !== resource.url) {
-            const { description, imageUrl } = await fetchUrlMetadata(url);
+            const { description: fetchedDescription, imageUrl } = await fetchUrlMetadata(url);
             updateData.url = url;
-            updateData.description = description || undefined;
+            updateData.description = fetchedDescription || undefined;
             updateData.imageUrl = imageUrl || undefined;
         }
 
@@ -171,7 +193,7 @@ export async function PATCH(request: Request) {
         });
 
         return NextResponse.json(updatedResource);
-    } catch (error) {
+    } catch (_error) {
         return NextResponse.json({ error: 'Failed to update resource' }, { status: 500 });
     }
 }

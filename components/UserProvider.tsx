@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface UserContextType {
     userId: string;
@@ -16,25 +16,24 @@ function generateUserId(): string {
 }
 
 export function UserProvider({ children }: { children: ReactNode }) {
-    const [userId, setUserId] = useState<string>('');
-    const [username, setUsernameState] = useState<string | null>(null);
-    const [isInitialized, setIsInitialized] = useState(false);
-
-    useEffect(() => {
-        // Load or generate userId
-        let storedUserId = localStorage.getItem('userId');
-        if (!storedUserId) {
-            storedUserId = generateUserId();
-            localStorage.setItem('userId', storedUserId);
+    const [userId] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            let storedUserId = localStorage.getItem('userId');
+            if (!storedUserId) {
+                storedUserId = generateUserId();
+                localStorage.setItem('userId', storedUserId);
+            }
+            return storedUserId;
         }
-        setUserId(storedUserId);
+        return '';
+    });
 
-        // Load username
-        const storedUsername = localStorage.getItem('username');
-        setUsernameState(storedUsername);
-
-        setIsInitialized(true);
-    }, []);
+    const [username, setUsernameState] = useState<string | null>(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('username');
+        }
+        return null;
+    });
 
     const setUsername = (name: string) => {
         const trimmedName = name.trim();
@@ -48,11 +47,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('username');
         setUsernameState(null);
     };
-
-    // Don't render children until initialized to avoid hydration issues
-    if (!isInitialized) {
-        return null;
-    }
 
     return (
         <UserContext.Provider value={{

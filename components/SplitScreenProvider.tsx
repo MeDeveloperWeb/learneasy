@@ -21,31 +21,35 @@ interface SplitScreenContextType {
 const SplitScreenContext = createContext<SplitScreenContextType | null>(null);
 
 export function SplitScreenProvider({ children }: { children: ReactNode }) {
-    const [splitScreenEnabled, setSplitScreenEnabledState] = useState(false);
+    const [splitScreenEnabled, setSplitScreenEnabledState] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('splitScreenEnabled');
+            if (saved !== null) {
+                return JSON.parse(saved);
+            }
+        }
+        return false;
+    });
     const [iframeUrl, setIframeUrl] = useState<string | null>(null);
     const [readerUrl, setReaderUrl] = useState<string | null>(null);
     const [textContent, setTextContent] = useState<string | null>(null);
     const [textTitle, setTextTitle] = useState<string | null>(null);
     const [contentType, setContentType] = useState<'iframe' | 'pdf' | 'image' | 'text' | null>(null);
-    const [isDesktop, setIsDesktop] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return window.innerWidth >= 1024;
+        }
+        return false;
+    });
 
-    // Check if desktop on mount and resize
+    // Check if desktop on resize
     useEffect(() => {
         const checkDesktop = () => {
             setIsDesktop(window.innerWidth >= 1024);
         };
 
-        checkDesktop();
         window.addEventListener('resize', checkDesktop);
         return () => window.removeEventListener('resize', checkDesktop);
-    }, []);
-
-    // Load preference from localStorage
-    useEffect(() => {
-        const saved = localStorage.getItem('splitScreenEnabled');
-        if (saved !== null) {
-            setSplitScreenEnabledState(JSON.parse(saved));
-        }
     }, []);
 
     const setSplitScreenEnabled = (enabled: boolean) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 type AdminContextType = {
     isAdmin: boolean;
@@ -17,14 +17,12 @@ const AdminContext = createContext<AdminContextType>({
 });
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
-    const [adminCode, setAdminCode] = useState<string | null>(null);
-
-    useEffect(() => {
-        const storedCode = localStorage.getItem('adminCode');
-        if (storedCode) {
-            setAdminCode(storedCode);
+    const [adminCode, setAdminCode] = useState<string | null>(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('adminCode');
         }
-    }, []);
+        return null;
+    });
 
     const login = (code: string) => {
         localStorage.setItem('adminCode', code);

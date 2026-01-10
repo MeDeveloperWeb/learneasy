@@ -16,8 +16,10 @@ export function SplitScreenLayout({ children }: { children: React.ReactNode }) {
 
   // Reset error state and start timeout when URL changes
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     setIframeError(false);
     setShowReaderButton(false);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     if (iframeUrl) {
       // Clear any existing timeout
@@ -157,7 +159,7 @@ export function SplitScreenLayout({ children }: { children: React.ReactNode }) {
                     </svg>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Can't embed this site
+                    Cannot embed this site
                   </h3>
                   <p className="text-sm text-gray-600 mb-6 max-w-md">
                     This website blocks embedding for security. Try reader mode to view article content, or open in a new tab.
