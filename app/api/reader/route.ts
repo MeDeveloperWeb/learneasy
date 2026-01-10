@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Parse with linkedom
     console.log('[Reader API] Parsing HTML with linkedom...');
-    const { document } = parseHTML(html);
+    const { document } = parseHTML(html, { url: targetUrl });
     console.log('[Reader API] HTML parsed successfully');
 
     // Extract article content with Readability
