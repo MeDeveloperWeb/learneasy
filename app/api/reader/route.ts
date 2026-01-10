@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Readability } from '@mozilla/readability';
-import { JSDOM } from 'jsdom';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -14,6 +13,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Dynamically import JSDOM to avoid ESM/CommonJS issues in serverless
+    const { JSDOM } = await import('jsdom');
+
     // Fetch the webpage
     const response = await fetch(targetUrl, {
       headers: {
