@@ -33,7 +33,17 @@ export async function GET(request: NextRequest) {
     const { document } = parseHTML(html);
 
     // Extract article content with Readability
-    const reader = new Readability(document, { url: targetUrl });
+    // Configure to preserve code blocks, tables, and other structural elements
+    const reader = new Readability(document, {
+      keepClasses: true,
+      classesToPreserve: [
+        'highlight', 'code', 'hljs', 'language-', 'prettyprint',
+        'syntax', 'sourceCode', 'codehilite', 'code-block',
+        'table', 'data-table'
+      ],
+      nbTopCandidates: 10,
+      charThreshold: 0, // Don't filter by length
+    });
     const article = reader.parse();
 
     if (!article) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface Article {
   title: string;
@@ -20,11 +20,17 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchArticle() {
       setLoading(true);
       setError(null);
+
+      // Scroll to top when new article loads
+      if (containerRef.current) {
+        containerRef.current.scrollTop = 0;
+      }
 
       try {
         const response = await fetch(
@@ -104,7 +110,139 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
   }
 
   return (
-    <div className="h-full overflow-auto bg-white">
+    <div ref={containerRef} className="h-full overflow-auto bg-white">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .reader-content {
+            font-size: 1.125rem;
+            line-height: 1.75;
+            color: #374151;
+          }
+          .reader-content p {
+            margin-bottom: 1.25rem;
+            line-height: 1.8;
+          }
+          .reader-content h1,
+          .reader-content h2,
+          .reader-content h3,
+          .reader-content h4,
+          .reader-content h5,
+          .reader-content h6 {
+            font-weight: 700;
+            color: #111827;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+          }
+          .reader-content h1 { font-size: 2rem; }
+          .reader-content h2 { font-size: 1.75rem; }
+          .reader-content h3 { font-size: 1.5rem; }
+          .reader-content ul,
+          .reader-content ol {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+          }
+          .reader-content ul {
+            list-style-type: disc;
+          }
+          .reader-content ol {
+            list-style-type: decimal;
+          }
+          .reader-content li {
+            margin-bottom: 0.75rem;
+            line-height: 1.8;
+            padding-left: 0.5rem;
+          }
+          .reader-content ul ul,
+          .reader-content ol ol,
+          .reader-content ul ol,
+          .reader-content ol ul {
+            margin-top: 0.75rem;
+            margin-bottom: 0.75rem;
+          }
+          .reader-content a {
+            color: #9333ea;
+            text-decoration: none;
+          }
+          .reader-content a:hover {
+            text-decoration: underline;
+          }
+          .reader-content strong,
+          .reader-content b {
+            font-weight: 600;
+            color: #111827;
+          }
+          .reader-content em,
+          .reader-content i {
+            font-style: italic;
+          }
+          .reader-content blockquote {
+            border-left: 4px solid #9333ea;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: #4b5563;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+          }
+          .reader-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.9rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          }
+          .reader-content pre {
+            background-color: #1f2937;
+            color: #f3f4f6;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            line-height: 1.6;
+          }
+          .reader-content pre code {
+            background-color: transparent;
+            padding: 0;
+            color: inherit;
+            font-size: 0.875rem;
+          }
+          .reader-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin: 2rem 0;
+          }
+          .reader-content hr {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 2rem 0;
+          }
+          .reader-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border: 1px solid #e5e7eb;
+          }
+          .reader-content th,
+          .reader-content td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem 1rem;
+            text-align: left;
+          }
+          .reader-content th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #111827;
+          }
+          .reader-content tbody tr:nth-child(even) {
+            background-color: #f9fafb;
+          }
+          .reader-content tbody tr:hover {
+            background-color: #f3f4f6;
+          }
+        `
+      }} />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -157,16 +295,7 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
 
         {/* Article body */}
         <div
-          className="prose prose-lg max-w-none
-                     prose-headings:font-bold prose-headings:text-gray-900
-                     prose-p:text-gray-700 prose-p:leading-relaxed
-                     prose-a:text-purple-600 prose-a:no-underline hover:prose-a:underline
-                     prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
-                     prose-pre:bg-gray-900 prose-pre:text-gray-100
-                     prose-img:rounded-lg prose-img:shadow-md
-                     prose-strong:text-gray-900 prose-strong:font-semibold
-                     prose-ul:list-disc prose-ol:list-decimal
-                     prose-li:text-gray-700"
+          className="reader-content"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
       </article>
