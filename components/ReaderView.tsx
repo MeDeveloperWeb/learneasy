@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import "katex/dist/katex.min.css";
 
 interface Article {
   title: string;
@@ -21,6 +22,7 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchArticle() {
@@ -53,6 +55,29 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
 
     fetchArticle();
   }, [url]);
+
+  // Render math formulas after article loads
+  useEffect(() => {
+    if (article && contentRef.current) {
+      const renderMath = async () => {
+        try {
+          const renderMathInElement = (await import('katex/dist/contrib/auto-render.js')).default;
+          renderMathInElement(contentRef.current!, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false },
+              { left: '\\[', right: '\\]', display: true },
+              { left: '\\(', right: '\\)', display: false }
+            ],
+            throwOnError: false
+          });
+        } catch (e) {
+          console.error('Math rendering error:', e);
+        }
+      };
+      renderMath();
+    }
+  }, [article]);
 
   if (loading) {
     return (
@@ -241,6 +266,15 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
           .reader-content tbody tr:hover {
             background-color: #f3f4f6;
           }
+          /* Math equation styling */
+          .reader-content .katex-display {
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+          }
+          .reader-content .katex {
+            font-size: 1.1em;
+          }
         `
       }} />
       {/* Header */}
@@ -295,6 +329,7 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
 
         {/* Article body */}
         <div
+          ref={contentRef}
           className="reader-content"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
