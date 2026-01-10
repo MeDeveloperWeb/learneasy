@@ -259,6 +259,7 @@ export function Header() {
             <GlobalSearch
                 isOpen={showSearch}
                 onClose={() => setShowSearch(false)}
+                splitScreenEnabled={splitScreenEnabled}
             />
         </header>
     );

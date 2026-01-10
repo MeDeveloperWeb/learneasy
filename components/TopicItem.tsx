@@ -111,7 +111,7 @@ export function TopicItem({ topic }: TopicItemProps) {
                 {topic._count.resources > 0 && (
                     <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full
                                    group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors">
-                        {topic._count.resources} resources
+                        {topic._count.resources}<span className="hidden sm:inline"> resources</span>
                     </span>
                 )}
             </div>

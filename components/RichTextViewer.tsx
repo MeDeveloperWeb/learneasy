@@ -15,12 +15,15 @@ import { Color } from '@tiptap/extension-color';
 import { Highlight } from '@tiptap/extension-highlight';
 import { Subscript } from '@tiptap/extension-subscript';
 import { Superscript } from '@tiptap/extension-superscript';
+import { useSplitScreen } from './SplitScreenProvider';
 
 interface RichTextViewerProps {
   content: string;
 }
 
 export function RichTextViewer({ content }: RichTextViewerProps) {
+  const { openInSplitScreen, splitScreenEnabled, isDesktop } = useSplitScreen();
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -33,8 +36,17 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
         types: ['heading', 'paragraph'],
       }),
       Link.configure({
-        openOnClick: true,
+        openOnClick: false,
         autolink: true,
+        HTMLAttributes: {
+          class: 'text-blue-600 hover:text-blue-800 underline cursor-pointer',
+        },
+      }).extend({
+        addProseMirrorPlugins() {
+          return [
+            ...(this.parent?.() || []),
+          ];
+        },
       }),
       TextStyle,
       Color.configure({
@@ -49,6 +61,31 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
     content: content,
     editable: false,
     immediatelyRender: false,
+    editorProps: {
+      handleClick: (view, pos, event) => {
+        const target = event.target as HTMLElement;
+        const link = target.closest('a');
+
+        if (link) {
+          event.preventDefault();
+          const href = link.getAttribute('href');
+
+          if (href) {
+            // If split screen is enabled and on desktop, open in split screen
+            if (splitScreenEnabled && isDesktop) {
+              openInSplitScreen(href);
+            } else {
+              // Otherwise open in new tab
+              window.open(href, '_blank', 'noopener,noreferrer');
+            }
+          }
+
+          return true;
+        }
+
+        return false;
+      },
+    },
   });
 
   // Update editor content when content changes

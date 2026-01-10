@@ -65,7 +65,7 @@ export function SplitScreenLayout({ children }: { children: React.ReactNode }) {
       <Group orientation="horizontal" className="flex-1">
         {/* Main content */}
         <Panel defaultSize={50} minSize={30}>
-          <div className="h-full overflow-y-auto overflow-x-hidden">
+          <div className="relative h-full overflow-y-auto overflow-x-hidden">
             {children}
           </div>
         </Panel>

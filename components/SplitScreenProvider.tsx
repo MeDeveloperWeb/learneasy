@@ -65,6 +65,10 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
 
     const openInSplitScreen = async (url: string, type?: 'iframe' | 'pdf' | 'image') => {
         if (splitScreenEnabled && isDesktop) {
+            // Clear text content when opening a link
+            setTextContent(null);
+            setTextTitle(null);
+
             // If type is specified (PDF or IMAGE), use it directly
             if (type === 'pdf' || type === 'image') {
                 setReaderUrl(null);

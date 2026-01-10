@@ -22,9 +22,10 @@ interface SearchResult {
 interface GlobalSearchProps {
   isOpen: boolean;
   onClose: () => void;
+  splitScreenEnabled?: boolean;
 }
 
-export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
+export function GlobalSearch({ isOpen, onClose, splitScreenEnabled = false }: GlobalSearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -97,7 +98,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
+    <div className={`${splitScreenEnabled ? 'absolute' : 'fixed'} inset-0 z-50 flex items-start justify-center pt-20 px-4`}>
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/30 backdrop-blur-sm"
