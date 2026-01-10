@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Paper {
+  id        String   @id @default(uuid())
+  title     String
+  code      String?
+  credit    String?
+  units     Unit[]
+  createdAt DateTime @default(now())
+}
+
+model Unit {
+  id        String   @id @default(uuid())
+  title     String   // e.g. "Unit I"
+  paperId   String
+  paper     Paper    @relation(fields: [paperId], references: [id])
+  topics    Topic[]
+  isCustom  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Topic {
+  id        String     @id @default(uuid())
+  title     String
+  unit      Unit       @relation(fields: [unitId], references: [id])
+  unitId    String
+  resources Resource[]
+  createdAt DateTime   @default(now())
+}
+
+enum ContentType {
+  LINK
+  IMAGE
+  TEXT
+  PDF
+}
+
+model Resource {
+  id          String      @id @default(uuid())
+  name        String
+  contentType ContentType @default(LINK)
+  url         String?
+  description String?
+  imageUrl    String?
+  fileUrl     String?     // Google Drive URL for uploaded files (IMAGE/PDF)
+  textContent String?     @db.Text
+  topic       Topic       @relation(fields: [topicId], references: [id])
+  topicId     String
+  userId      String?     // User ID who created the resource
+  username    String?     // Username who created the resource
+  createdAt   DateTime    @default(now())
+}

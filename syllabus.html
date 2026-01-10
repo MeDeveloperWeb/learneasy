@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>M.Sc Computer Science – Year 1 Semester 1 Syllabus</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f7f7f7;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+        }
+
+        th,
+        td {
+            border: 1px solid #333;
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #e0e0e0;
+            width: 15%;
+        }
+
+        .course {
+            padding: 15px;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>M.Sc Computer Science – Year 1 Semester 1</h1>
+
+    <div id="content"></div>
+
+    <script>
+        const syllabus = {
+            "Core Course 1": {
+                code: "MSCTCC101",
+                title: "Programming Concepts & Data Structure with Python",
+                credit: 4,
+                units: {
+                    "Unit I": [
+                        "Introduction to Python, Features of Python – interactive, object oriented, interpreted, platform independent",
+                        "Python building blocks – identifiers, keywords, indentation, variables, comments",
+                        "Python data types – Numbers, String, Tuples, Lists, Dictionary",
+                        "Basic operators – arithmetic, comparison/relational, assignment, logical, bitwise, membership, identity operators",
+                        "Python operator precedence",
+                        "Control flow – conditional statements (if, if else, nested if), looping in python (while loop, for loop, nested loops)",
+                        "Loop manipulation using continue, pass, break, else",
+                        "Functions, use of Python built-in functions (type / data conversion functions, mathematical functions etc.)",
+                        "User defined functions – function definition, function calling, function arguments and parameter passing",
+                        "Return statement, scope of variables – global and local variable"
+                    ],
+                    "Unit II": [
+                        "Python Modules and Packages",
+                        "Writing modules, importing modules, importing objects from modules",
+                        "Python built-in modules (numeric and mathematical module, functional programming module)",
+                        "Python packages",
+                        "Using standard NumPy",
+                        "Methods in NumPy",
+                        "Creating and initializing arrays",
+                        "Reading arrays from files",
+                        "Special initializing functions",
+                        "Slicing and indexing",
+                        "Reshaping arrays",
+                        "Combining arrays"
+                    ],
+                    "Unit III": [
+                        "Data Structures – definition and applications",
+                        "Linear Data Structure, Non-linear data structures",
+                        "Arrays – overview, types of arrays, operations on arrays, arrays vs lists",
+                        "Introduction to stack",
+                        "Stack applications – expression evaluation, backtracking",
+                        "Traversal – infix, prefix and postfix concepts",
+                        "Stack implementation using Python",
+                        "Linked Lists – singly linked list, doubly linked list, circular linked lists",
+                        "Implementation using Python packages for link list",
+                        "Arrays – searching – linear search and binary search",
+                        "Queues, queue applications – breadth first search, depth first search"
+                    ],
+                    "Unit IV": [
+                        "Sorting",
+                        "Comparison Based Sorting – Selection Sort, Bubble Sort, Insertion Sort, Merge Sort, Quick Sort, Heap Sort",
+                        "Non-Comparison Based Sorting – Counting Sort, Radix Sort, Bucket Sort",
+                        "Non-Linear Data Structure – Trees",
+                        "Tree terminology",
+                        "Implementation and applications",
+                        "Binary tree implementation",
+                        "Tree traversals",
+                        "Binary search trees",
+                        "Applications of trees – spanning tree, BST",
+                        "Tree traversal – inorder, preorder and postorder concepts"
+                    ]
+                }
+            },
+
+            "Core Course 2": {
+                code: "MSCTCC102",
+                title: "Design and Analysis of Algorithm",
+                credit: 4,
+                units: {
+                    "Unit I": [
+                        "Algorithm, pseudo code for expressing algorithms",
+                        "Performance analysis – space complexity, time complexity",
+                        "Asymptotic notation – big (O) notation, omega notation, theta notation and little (o) notation",
+                        "Recurrences",
+                        "Probabilistic analysis",
+                        "Disjoint set operations",
+                        "Union and find algorithms"
+                    ],
+                    "Unit II": [
+                        "Fundamental Algorithmic Strategies",
+                        "Brute-Force",
+                        "Linear search",
+                        "Selection sort",
+                        "Greedy – Huffman coding, Fractional knapsack problem, Activity selection Problem",
+                        "Dynamic Programming – matrix chain multiplication, longest common subsequence, Travelling Salesman Problem",
+                        "Branch-and-Bound and Backtracking methodologies",
+                        "Illustrations for Problem-Solving",
+                        "Bin Packing",
+                        "Knapsack TSP",
+                        "Heuristics – characteristics and applications"
+                    ],
+                    "Unit III": [
+                        "Graph and Tree Algorithms",
+                        "Traversal algorithms – Depth First Search (DFS) and Breadth First Search (BFS)",
+                        "Shortest path algorithms",
+                        "Transitive closure",
+                        "Minimum Spanning Tree",
+                        "Topological sorting",
+                        "Network Flow Algorithm"
+                    ],
+                    "Unit IV": [
+                        "Backtracking – general method",
+                        "Applications – n-queen problem, sum of subsets problem, graph colouring and Hamiltonian cycles",
+                        "Branch and Bound – general method",
+                        "Applications – travelling salesman problem, 0/1 knapsack problem",
+                        "LC branch and bound solution",
+                        "FIFO branch and bound solution"
+                    ]
+                }
+            },
+
+            "Core Course 3": {
+                code: "MSCTCC103",
+                title: "RDBMS with SQL",
+                credit: 4,
+                units: {
+                    "Unit I": [
+                        "Database definition",
+                        "Purpose of database",
+                        "DBMS versus RDBMS",
+                        "E. F. Codd’s twelve rules",
+                        "Database modelling",
+                        "Entities and attributes",
+                        "Entity relationship model",
+                        "Three levels of data abstraction",
+                        "Characteristics of database",
+                        "Data models",
+                        "Instances and schemas",
+                        "Data independence",
+                        "Structure of DBMS",
+                        "Advantages and disadvantages of DBMS",
+                        "Data dictionary",
+                        "Database components",
+                        "Data definition language",
+                        "Data manipulation language",
+                        "Keys – primary, candidate, composite keys"
+                    ],
+                    "Unit II": [
+                        "Generalization and aggregation",
+                        "Relational data model",
+                        "Network data model",
+                        "Hierarchical model",
+                        "Normalization",
+                        "Transaction processing and concurrency control",
+                        "Database recovery concepts",
+                        "Definition of transaction and ACID properties",
+                        "Normalization through synthesis",
+                        "Functional dependencies and semantics",
+                        "Synthesis approach",
+                        "Synthesis algorithm",
+                        "Multivalued dependencies"
+                    ],
+                    "Unit III": [
+                        "Concurrency control techniques",
+                        "Deadlocks",
+                        "Database security and authorization",
+                        "Database security issues",
+                        "Views",
+                        "Clustering",
+                        "Joins",
+                        "Parallel databases",
+                        "I/O parallelism",
+                        "Inter and intra query parallelism",
+                        "Inter and intra operation parallelism",
+                        "De-normalization for performance",
+                        "ACID properties"
+                    ],
+                    "Unit IV": [
+                        "Distributed database system",
+                        "Implementation of DDL and DML with Oracle software",
+                        "Insertion and retrieving records from oracle database",
+                        "Database connection with web application",
+                        "Relational database design",
+                        "Features of good relational designs",
+                        "Decomposition using functional dependencies",
+                        "Boyce-Codd normal form (BCNF)",
+                        "Dependency preservation"
+                    ]
+                }
+            },
+
+            "Core Course 4": {
+                code: "MSCTCC104",
+                title: "Cloud Computing",
+                credit: 4,
+                units: {
+                    "Unit I": [
+                        "History of centralized and distributed computing",
+                        "Overview of distributed computing",
+                        "Cluster computing",
+                        "Grid computing",
+                        "Technologies for network based systems",
+                        "System models for distributed and cloud computing",
+                        "Software environments for distributed systems and clouds"
+                    ],
+                    "Unit II": [
+                        "Introduction to cloud computing",
+                        "Cloud issues and challenges",
+                        "Properties and characteristics",
+                        "Service models",
+                        "Deployment models",
+                        "Cloud resources – network and API",
+                        "Virtual and physical computational resources",
+                        "Data-storage",
+                        "Virtualization concepts",
+                        "Types of virtualization",
+                        "Hypervisors",
+                        "High availability (HA)",
+                        "Disaster recovery (DR)",
+                        "Live virtualization",
+                        "Moving VMs"
+                    ],
+                    "Unit III": [
+                        "Infrastructure as a Service (IaaS)",
+                        "Resource virtualization – server, storage, network",
+                        "Case studies",
+                        "Platform as a Service (PaaS)",
+                        "Cloud platform and management",
+                        "Computation, storage",
+                        "Case studies",
+                        "Software as a Service (SaaS)",
+                        "Web services",
+                        "Web 2.0",
+                        "Web OS",
+                        "Anything as a Service (XaaS)"
+                    ],
+                    "Unit IV": [
+                        "Cloud access – authentication, authorization and accounting",
+                        "Cloud provenance and meta-data",
+                        "Cloud reliability and fault-tolerance",
+                        "Cloud security",
+                        "Privacy",
+                        "Policy and compliance",
+                        "Cloud federation",
+                        "Interoperability and standards"
+                    ]
+                }
+            },
+
+            "Core Course 5 (Practical)": {
+                code: "MSCTCC105",
+                title: "RDBMS with SQL (Practical)",
+                credit: 2,
+                units: {
+                    "Practical List": [
+                        "Creating database",
+                        "Creating database with schema",
+                        "Implementation of DML and DDL commands",
+                        "Implementation of primary key",
+                        "Implementation of foreign key",
+                        "Implementation of candidate key",
+                        "Implementation of composite key",
+                        "Submitting and retrieval of records through firing queries",
+                        "Implementation of inner joins",
+                        "Implementation of left outer joins",
+                        "Implementation of right outer joins",
+                        "Implementation of full outer joins",
+                        "Creating, updating and dropping views",
+                        "Implementation of clustering",
+                        "Database connection with web application",
+                        "Implementation of database recovery",
+                        "Implementation of database extraction and authentication"
+                    ]
+                }
+            },
+
+            "Value Added Course": {
+                code: "MSCTVA106",
+                title: "Mathematical Foundation of Computer Science",
+                credit: 2,
+                units: {
+                    "Unit I": [
+                        "Propositional logic and applications",
+                        "Propositional equivalence",
+                        "Predicates and quantifiers",
+                        "Nested quantifiers",
+                        "Rules of inference",
+                        "Introduction to proofs",
+                        "Resolution proof system",
+                        "Predicate logic",
+                        "Sets",
+                        "Functions",
+                        "Sequences and summations",
+                        "Cardinality of sets",
+                        "Matrices and matrix relations",
+                        "Linear transformations",
+                        "Eigen values",
+                        "Orthogonality",
+                        "n-ary relations",
+                        "Closures of relations",
+                        "Equivalence relations",
+                        "Partial orderings"
+                    ],
+                    "Unit II": [
+                        "Probability theory",
+                        "Discrete random variable",
+                        "Continuous random variable",
+                        "Bayes’ theorem",
+                        "Expected value and variance",
+                        "Moment generating function",
+                        "Markov’s inequality",
+                        "Chebyshev’s inequality",
+                        "Geometric and binomial distributions",
+                        "Tail of binomial distribution"
+                    ],
+                    "Unit III": [
+                        "Advanced counting techniques",
+                        "Recurrence relations",
+                        "Solving linear recurrence relations",
+                        "Divide and conquer algorithms",
+                        "Generating functions",
+                        "Inclusion-exclusion principle",
+                        "Applications of inclusion-exclusion"
+                    ],
+                    "Unit IV": [
+                        "Graphs",
+                        "Euler tours",
+                        "Planar graphs",
+                        "Hamiltonian graphs",
+                        "Euler’s formula",
+                        "Kuratowski’s theorem",
+                        "Graph colouring",
+                        "Chromatic polynomials",
+                        "Trees",
+                        "Weighted trees",
+                        "Max-flow min-cut theorem",
+                        "Turing machines",
+                        "Recursive and recursively enumerable languages",
+                        "Cantor’s diagonalization theorem",
+                        "Complexity classes – NP-Hard and NP-Complete problems",
+                        "Cook’s theorem",
+                        "NP completeness reductions",
+                        "Approximation algorithms"
+                    ]
+                }
+            }
+        };
+
+        function render() {
+            const root = document.getElementById("content");
+
+            for (const courseName in syllabus) {
+                const course = syllabus[courseName];
+
+                const div = document.createElement("div");
+                div.className = "course";
+
+                div.innerHTML = `
+      <h2>${courseName}</h2>
+      <p><strong>Code:</strong> ${course.code}</p>
+      <p><strong>Title:</strong> ${course.title}</p>
+      <p><strong>Credit:</strong> ${course.credit}</p>
+    `;
+
+                for (const unit in course.units) {
+                    const table = document.createElement("table");
+                    table.innerHTML = `
+        <tr>
+          <th>${unit}</th>
+          <td>
+            <ul>
+              ${course.units[unit].map(t => `<li>${t}</li>`).join("")}
+            </ul>
+          </td>
+        </tr>
+      `;
+                    div.appendChild(table);
+                }
+
+                root.appendChild(div);
+            }
+        }
+
+        render();
+    </script>
+
+</body>
+
+</html>

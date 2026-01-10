@@ -1,0 +1,284 @@
+MVP Specification — Exam Preparation Web App
+1. Objective
+
+Build a minimal, fast, and frictionless web application that helps users prepare for exams by organizing Papers → Topics → Resources.
+
+Anyone can view content and add resources
+
+Only admin can add papers and topics
+
+No login system
+
+Admin access is controlled via an environment variable code
+
+2. Tech Stack
+
+Frontend: Next.js (App Router)
+
+Backend: Next.js API Routes
+
+ORM: Prisma
+
+Database: PostgreSQL
+
+Metadata Fetching: Open Graph / HTML title scraping
+
+Styling: Minimal (Tailwind or plain CSS)
+
+3. Core Concepts & Entities
+3.1 Paper
+
+Represents an exam paper or subject.
+
+Example
+
+GATE CSE
+
+Operating Systems
+
+Data Structures
+
+Fields
+
+id
+
+title
+
+createdAt
+
+3.2 Topic
+
+A topic belongs to a paper.
+
+Example
+
+Scheduling Algorithms
+
+Deadlocks
+
+Memory Management
+
+Fields
+
+id
+
+title
+
+paperId
+
+createdAt
+
+3.3 Resource
+
+Any useful preparation resource linked to a topic.
+
+Example
+
+YouTube video
+
+Blog post
+
+PDF
+
+Website link
+
+Fields
+
+id
+
+topicId
+
+name
+
+url
+
+description (optional, auto-fetched)
+
+createdAt
+
+4. User Roles
+4.1 Admin
+
+Can add:
+
+Papers
+
+Topics
+
+Access controlled by Admin Code
+
+4.2 Public User
+
+Can:
+
+View all papers, topics, resources
+
+Add resources to any topic
+
+No authentication required
+
+5. Admin Access Model (No Login)
+Environment Variable
+ADMIN_CODE=some-secret-code
+
+Admin Flow
+
+UI shows an “Enter Admin Code” input
+
+User enters code
+
+Code is compared with process.env.ADMIN_CODE
+
+If matched:
+
+Admin mode enabled (stored in memory / cookie / localStorage)
+
+Admin-only actions become visible
+
+No user accounts. No sessions. No database persistence for admin state.
+
+6. Application Flow
+6.1 Home Page (/)
+
+List of all Papers
+
+Button (admin-only): Add Paper
+
+6.2 Paper Page (/paper/[paperId])
+
+Displays:
+
+Paper title
+
+List of Topics
+
+Button (admin-only): Add Topic
+
+6.3 Topic Page (/topic/[topicId])
+
+Displays:
+
+Topic title
+
+List of resources
+
+Public button: Add Resource
+
+7. Resource Addition Flow (Public)
+Input Required from User
+
+Resource Name (mandatory)
+
+Resource URL (mandatory)
+
+Nothing else.
+
+System Behavior
+
+User submits URL
+
+Backend attempts to:
+
+Fetch page metadata
+
+Extract <title> or Open Graph title
+
+If fetch succeeds:
+
+Auto-fill description
+
+If fetch fails:
+
+Save resource with only name + URL
+
+No validation beyond basic URL check.
+
+8. Prisma Data Model (MVP)
+model Paper {
+  id        String   @id @default(uuid())
+  title     String
+  topics    Topic[]
+  createdAt DateTime @default(now())
+}
+
+model Topic {
+  id        String     @id @default(uuid())
+  title     String
+  paper     Paper      @relation(fields: [paperId], references: [id])
+  paperId   String
+  resources Resource[]
+  createdAt DateTime   @default(now())
+}
+
+model Resource {
+  id          String   @id @default(uuid())
+  name        String
+  url         String
+  description String?
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  topicId     String
+  createdAt   DateTime @default(now())
+}
+
+9. API Endpoints (Minimal)
+Papers
+
+GET /api/papers
+
+POST /api/papers (admin only)
+
+Topics
+
+GET /api/papers/:id/topics
+
+POST /api/topics (admin only)
+
+Resources
+
+GET /api/topics/:id/resources
+
+POST /api/resources (public)
+
+10. Admin Authorization Logic (Server)
+if (req.headers["x-admin-code"] !== process.env.ADMIN_CODE) {
+  return res.status(403).json({ error: "Unauthorized" });
+}
+
+
+Client sends admin code only for admin routes.
+
+11. Non-Goals (Explicitly Out of Scope)
+
+Authentication / login
+
+User accounts
+
+Voting / likes
+
+Comments
+
+Resource moderation
+
+Analytics
+
+Mobile app
+
+SEO optimization
+
+12. MVP Success Criteria
+
+The MVP is complete when:
+
+Admin can add papers and topics using a code
+
+Public users can browse content freely
+
+Anyone can add a resource by providing:
+
+Name
+
+URL
+
+Resource titles auto-fetch when possible
+
+App works reliably with minimal UI
