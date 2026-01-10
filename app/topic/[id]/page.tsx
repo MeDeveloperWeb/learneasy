@@ -103,7 +103,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                 </div>
 
                 {/* Resources Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {resources.map((resource, index) => (
                         <ResourceCard
                             key={resource.id}

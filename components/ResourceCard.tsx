@@ -204,14 +204,14 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
             <Wrapper
                 {...wrapperProps}
                 onClick={handleClick}
-                className={`group block bg-white rounded-2xl shadow-sm overflow-hidden
+                className={`group block bg-white rounded-xl shadow-sm overflow-hidden
                            gradient-border ${isClickable ? 'card-hover cursor-pointer' : ''} animate-slide-up
                            stagger-${Math.min(index + 1, 6)}`}
                 style={{ opacity: 0 }}
             >
             {/* Image Section */}
             {resource.imageUrl && !imageLoadError ? (
-                <div className="relative h-40 bg-gradient-to-br from-gray-100 to-gray-50 overflow-hidden">
+                <div className="relative aspect-[16/9] bg-gradient-to-br from-gray-100 to-gray-50 overflow-hidden">
                     <img
                         src={resource.imageUrl}
                         alt={resource.name}
@@ -226,18 +226,18 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
             )}
 
             {/* Content Section */}
-            <div className="p-5 relative">
+            <div className="p-4 relative">
                 {/* Edit/Delete Buttons for Owner or Admin */}
                 {(isAdmin || isOwner) && (
-                    <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
                         {isOwner && (
                             <button
                                 onClick={handleEdit}
                                 className="bg-blue-500 hover:bg-blue-600 text-white
-                                         w-8 h-8 rounded-lg flex items-center justify-center shadow-lg"
+                                         w-7 h-7 rounded-lg flex items-center justify-center shadow-lg"
                                 title="Edit"
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
@@ -246,10 +246,10 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
                         <button
                             onClick={handleDelete}
                             className="bg-red-500 hover:bg-red-600 text-white
-                                     w-8 h-8 rounded-lg flex items-center justify-center shadow-lg"
+                                     w-7 h-7 rounded-lg flex items-center justify-center shadow-lg"
                             title="Delete"
                         >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -257,13 +257,13 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
                     </div>
                 )}
 
-                <h3 className="font-semibold text-gray-800 group-hover:text-purple-600
+                <h3 className="font-semibold text-base text-gray-800 group-hover:text-purple-600
                              transition-colors mb-2 line-clamp-2 pr-16">
                     {resource.name}
                 </h3>
 
                 {!isEditing && resource.contentType === 'LINK' && resource.url && (
-                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-3">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                 d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -273,7 +273,7 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
                 )}
 
                 {!isEditing && resource.contentType === 'IMAGE' && (
-                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-3">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -283,7 +283,7 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
                 )}
 
                 {!isEditing && resource.contentType === 'TEXT' && (
-                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-3">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -293,7 +293,7 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
                 )}
 
                 {!isEditing && resource.contentType === 'PDF' && (
-                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-3">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                 d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -318,7 +318,7 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
 
                 {/* Bottom section - Like button, Username and Visit indicator */}
                 {!isEditing && (
-                    <div className="mt-4 flex items-center justify-between">
+                    <div className="mt-3 flex items-center justify-between">
                         {/* Left side - Like button */}
                         <LikeButton
                             resourceId={resource.id}
