@@ -9,6 +9,7 @@ import { TextContentModal } from './TextContentModal';
 import { RichTextEditor } from './RichTextEditor';
 import { Modal } from './Modal';
 import { LikeButton } from './LikeButton';
+import { ResourcePlaceholder } from './ResourcePlaceholder';
 
 interface ResourceCardProps {
     resource: {
@@ -37,6 +38,7 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
     const [editedUrl, setEditedUrl] = useState(resource.url || '');
     const [editedTextContent, setEditedTextContent] = useState(resource.textContent || '');
     const [showTextModal, setShowTextModal] = useState(false);
+    const [imageLoadError, setImageLoadError] = useState(false);
     const router = useRouter();
 
     const isOwner = resource.userId && resource.userId === currentUserId;
@@ -208,19 +210,19 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
                 style={{ opacity: 0 }}
             >
             {/* Image Section */}
-            {resource.imageUrl && (
+            {resource.imageUrl && !imageLoadError ? (
                 <div className="relative h-40 bg-gradient-to-br from-gray-100 to-gray-50 overflow-hidden">
                     <img
                         src={resource.imageUrl}
                         alt={resource.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                            e.currentTarget.parentElement!.style.display = 'none';
-                        }}
+                        onError={() => setImageLoadError(true)}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0
                                    group-hover:opacity-100 transition-opacity" />
                 </div>
+            ) : (
+                <ResourcePlaceholder contentType={resource.contentType} name={resource.name} />
             )}
 
             {/* Content Section */}
