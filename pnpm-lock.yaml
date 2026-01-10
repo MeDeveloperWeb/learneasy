@@ -20,6 +20,9 @@ importers:
       '@mui/material':
         specifier: ^7.3.7
         version: 7.3.7(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.3))(@types/react@19.2.7)(react@19.2.3))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@prisma/client':
+        specifier: ^6.19.1
+        version: 6.19.1(prisma@6.19.1(typescript@5.9.3))(typescript@5.9.3)
       '@supabase/supabase-js':
         specifier: ^2.90.1
         version: 2.90.1
@@ -81,9 +84,6 @@ importers:
         specifier: ^4.3.3
         version: 4.3.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     devDependencies:
-      '@prisma/client':
-        specifier: ^6.19.1
-        version: 6.19.1(prisma@6.19.1(typescript@5.9.3))(typescript@5.9.3)
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.18
