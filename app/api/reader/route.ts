@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Dynamically import JSDOM to avoid ESM/CommonJS issues in serverless
-    const { JSDOM } = await import('jsdom');
+    // Use linkedom for serverless-friendly HTML parsing
+    const { parseHTML } = await import('linkedom');
 
     // Fetch the webpage
     const response = await fetch(targetUrl, {
@@ -29,13 +29,11 @@ export async function GET(request: NextRequest) {
 
     const html = await response.text();
 
-    // Parse with JSDOM
-    const dom = new JSDOM(html, {
-      url: targetUrl,
-    });
+    // Parse with linkedom
+    const { document } = parseHTML(html);
 
     // Extract article content with Readability
-    const reader = new Readability(dom.window.document);
+    const reader = new Readability(document, { url: targetUrl });
     const article = reader.parse();
 
     if (!article) {
