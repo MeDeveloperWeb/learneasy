@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { TextContentModal } from './TextContentModal';
 import { RichTextEditor } from './RichTextEditor';
 import { Modal } from './Modal';
+import { LikeButton } from './LikeButton';
 
 interface ResourceCardProps {
     resource: {
@@ -21,6 +22,8 @@ interface ResourceCardProps {
         textContent: string | null;
         userId?: string | null;
         username?: string | null;
+        likesCount: number;
+        likes?: { userId: string }[];
     };
     index?: number;
 }
@@ -37,6 +40,7 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
     const router = useRouter();
 
     const isOwner = resource.userId && resource.userId === currentUserId;
+    const isLiked = resource.likes?.some(like => like.userId === currentUserId) || false;
 
     const handleDelete = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -310,65 +314,75 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
                     />
                 )}
 
-                {/* Bottom section - Username and Visit indicator */}
+                {/* Bottom section - Like button, Username and Visit indicator */}
                 {!isEditing && (
                     <div className="mt-4 flex items-center justify-between">
-                        {/* Show username if available */}
-                        {resource.username && (
-                            <div className="flex items-center gap-1 text-xs text-gray-400">
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                <span>{resource.username}</span>
-                            </div>
-                        )}
+                        {/* Left side - Like button */}
+                        <LikeButton
+                            resourceId={resource.id}
+                            initialLikesCount={resource.likesCount}
+                            initialIsLiked={isLiked}
+                            userId={currentUserId}
+                        />
 
-                        {/* Visit indicator - shows split screen hint when enabled */}
-                        {hasLink && (
-                            <div className="flex items-center text-xs text-purple-500 font-medium
-                                           opacity-0 group-hover:opacity-100 transition-opacity ml-auto">
-                                <span>
-                                    {splitScreenEnabled && isDesktop
-                                        ? 'Open in panel'
-                                        : resource.contentType === 'PDF'
-                                        ? 'View PDF'
-                                        : resource.contentType === 'IMAGE'
-                                        ? 'View image'
-                                        : 'Visit resource'}
-                                </span>
-                                <svg className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    {splitScreenEnabled && isDesktop ? (
+                        {/* Right side - Username and visit indicator */}
+                        <div className="flex items-center gap-3 ml-auto">
+                            {/* Show username if available */}
+                            {resource.username && (
+                                <div className="flex items-center gap-1 text-xs text-gray-400">
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                            d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                                    ) : (
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    )}
-                                </svg>
-                            </div>
-                        )}
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <span>{resource.username}</span>
+                                </div>
+                            )}
 
-                        {/* Text content indicator */}
-                        {resource.contentType === 'TEXT' && (
-                            <div className="flex items-center text-xs text-purple-500 font-medium
-                                           opacity-0 group-hover:opacity-100 transition-opacity ml-auto">
-                                <span>
-                                    {splitScreenEnabled && isDesktop ? 'Open in panel' : 'Read more'}
-                                </span>
-                                <svg className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    {splitScreenEnabled && isDesktop ? (
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                            d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                                    ) : (
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                            d="M9 5l7 7-7 7" />
-                                    )}
-                                </svg>
-                            </div>
-                        )}
+                            {/* Visit indicator - shows split screen hint when enabled */}
+                            {hasLink && (
+                                <div className="flex items-center text-xs text-purple-500 font-medium
+                                               opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span>
+                                        {splitScreenEnabled && isDesktop
+                                            ? 'Open in panel'
+                                            : resource.contentType === 'PDF'
+                                            ? 'View PDF'
+                                            : resource.contentType === 'IMAGE'
+                                            ? 'View image'
+                                            : 'Visit resource'}
+                                    </span>
+                                    <svg className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        {splitScreenEnabled && isDesktop ? (
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                                        ) : (
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        )}
+                                    </svg>
+                                </div>
+                            )}
+
+                            {/* Text content indicator */}
+                            {resource.contentType === 'TEXT' && (
+                                <div className="flex items-center text-xs text-purple-500 font-medium">
+                                    <span>
+                                        {splitScreenEnabled && isDesktop ? 'Open in panel' : 'Read more'}
+                                    </span>
+                                    <svg className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        {splitScreenEnabled && isDesktop ? (
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                                        ) : (
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                d="M9 5l7 7-7 7" />
+                                        )}
+                                    </svg>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

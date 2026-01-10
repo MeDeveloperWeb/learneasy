@@ -63,7 +63,9 @@ export function RichTextEditor({ value, onChange, placeholder, disabled }: RichT
       }),
       LinkBubbleMenuHandler,
       TextStyle,
-      Color,
+      Color.configure({
+        types: ['textStyle'],
+      }),
       Highlight.configure({
         multicolor: true,
       }),

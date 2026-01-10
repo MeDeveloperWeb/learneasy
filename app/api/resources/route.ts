@@ -15,7 +15,15 @@ export async function GET(request: Request) {
     try {
         const resources = await prisma.resource.findMany({
             where: { topicId },
-            orderBy: { createdAt: 'desc' },
+            orderBy: [
+                { likesCount: 'desc' },
+                { createdAt: 'desc' },
+            ],
+            include: {
+                likes: {
+                    select: { userId: true },
+                },
+            },
         });
         return NextResponse.json(resources);
     } catch (error) {

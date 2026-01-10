@@ -37,7 +37,9 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
         autolink: true,
       }),
       TextStyle,
-      Color,
+      Color.configure({
+        types: ['textStyle'],
+      }),
       Highlight.configure({
         multicolor: true,
       }),

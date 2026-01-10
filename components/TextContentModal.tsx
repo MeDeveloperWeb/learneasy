@@ -1,6 +1,7 @@
 "use client";
 
 import { Modal } from './Modal';
+import { RichTextViewer } from './RichTextViewer';
 
 interface TextContentModalProps {
   isOpen: boolean;
@@ -13,26 +14,15 @@ interface TextContentModalProps {
 export function TextContentModal({ isOpen, onClose, title, content, username }: TextContentModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="full">
-      <div className="max-h-[calc(90vh-8rem)] overflow-y-auto">
-        {/* Content with rich text formatting */}
-        <div
-          className="prose prose-sm md:prose-base max-w-none
-                     prose-headings:font-bold prose-headings:text-gray-900
-                     prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
-                     prose-p:text-gray-700 prose-p:leading-relaxed
-                     prose-a:text-purple-600 prose-a:underline hover:prose-a:text-purple-700
-                     prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm
-                     prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:p-4 prose-pre:rounded-lg
-                     prose-blockquote:border-l-4 prose-blockquote:border-purple-500 prose-blockquote:pl-4 prose-blockquote:italic
-                     prose-strong:text-gray-900 prose-strong:font-semibold
-                     prose-ul:list-disc prose-ol:list-decimal
-                     prose-li:text-gray-700 prose-li:my-1"
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
+      <div className="flex flex-col h-[calc(90vh-8rem)]">
+        {/* Content with rich text editor (read-only) */}
+        <div className="flex-1 overflow-hidden">
+          <RichTextViewer content={content} />
+        </div>
 
         {/* Author info at bottom */}
         {username && (
-          <div className="mt-8 pt-4 border-t border-gray-200">
+          <div className="flex-shrink-0 mt-4 pt-4 border-t border-gray-200">
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

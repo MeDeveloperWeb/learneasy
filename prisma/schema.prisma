@@ -58,4 +58,20 @@ model Resource {
   userId      String?     // User ID who created the resource
   username    String?     // Username who created the resource
   createdAt   DateTime    @default(now())
+  likesCount  Int         @default(0)
+  likes       Like[]
+
+  @@index([topicId, likesCount])
+}
+
+model Like {
+  id         String   @id @default(uuid())
+  userId     String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  resourceId String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, resourceId])
+  @@index([resourceId])
+  @@index([userId])
 }
