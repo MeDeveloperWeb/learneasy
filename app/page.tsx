@@ -19,10 +19,10 @@ export default async function Home() {
         {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-in">
           <h1 className="text-5xl font-extrabold tracking-tight mb-4">
-            <span className="gradient-text">Master Your Exams</span>
+            <span className="gradient-text">Organize Now, Study Later™</span>
           </h1>
           <p className="text-lg text-gray-500 max-w-xl mx-auto">
-            Community-curated resources to help you prepare. Select a paper below to get started.
+            All your resources in one place. Perfectly categorized. Beautifully organized. Ready whenever you are.
           </p>
         </div>
 
@@ -66,11 +66,11 @@ export default async function Home() {
           ))}
 
           {papers.length === 0 && (
-            <div className="col-span-full text-center py-20 text-gray-400 bg-white rounded-2xl 
+            <div className="col-span-full text-center py-20 text-gray-400 bg-white rounded-2xl
                            border-2 border-dashed border-gray-200 animate-fade-in">
               <div className="text-5xl mb-4">📚</div>
-              <p className="font-medium">No papers yet</p>
-              <p className="text-sm mt-1">Admin can add the first paper to get started.</p>
+              <p className="font-medium">Nothing to organize yet</p>
+              <p className="text-sm mt-1">Add your first paper and start your productive procrastination journey.</p>
             </div>
           )}
         </div>

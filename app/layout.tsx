@@ -12,8 +12,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "MissionCS - Exam Preparation Hub",
-  description: "Community-curated resources for CS exam preparation",
+  title: "MissionCS - Professional Procrastination",
+  description: "Where study resources come to be perfectly organized (and occasionally studied)",
 };
 
 export default function RootLayout({
