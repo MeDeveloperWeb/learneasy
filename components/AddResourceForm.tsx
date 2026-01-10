@@ -247,25 +247,35 @@ export function AddResourceForm({
                                     onChange={(e) => setUrl(e.target.value)}
                                     onPaste={handlePaste}
                                     placeholder="https://youtube.com/watch?v=..."
-                                    className="input-modern pl-10"
+                                    className="input-modern"
+                                    style={{
+                                        paddingLeft: '2.5rem',
+                                        paddingRight: isLoading ? '9rem' : '1rem'
+                                    }}
                                     required
                                 />
-                                <svg
-                                    className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                </svg>
+                                {!isLoading && (
+                                    <svg
+                                        className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    </svg>
+                                )}
                                 {isLoading && (
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
                                         <svg className="animate-spin h-4 w-4 text-purple-500" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                                         </svg>
-                                        <span className="text-xs text-purple-500">Fetching title...</span>
+                                    </div>
+                                )}
+                                {isLoading && (
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <span className="text-xs text-purple-500 whitespace-nowrap">Fetching title...</span>
                                     </div>
                                 )}
                             </div>

@@ -6,7 +6,8 @@ import { useAdmin } from './AdminProvider';
 import { useSplitScreen } from './SplitScreenProvider';
 import { useUser } from './UserProvider';
 import { UsernameModal } from './UsernameModal';
-import { useState } from 'react';
+import { GlobalSearch } from './GlobalSearch';
+import { useState, useEffect } from 'react';
 
 export function Header() {
     const { isAdmin, login, logout } = useAdmin();
@@ -15,6 +16,7 @@ export function Header() {
     const [showAdminInput, setShowAdminInput] = useState(false);
     const [showUsernameModal, setShowUsernameModal] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const [showSearch, setShowSearch] = useState(false);
     const [code, setCode] = useState("");
     const router = useRouter();
     const pathname = usePathname();
@@ -29,6 +31,18 @@ export function Header() {
             setShowAdminInput(false);
         }
     };
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setShowSearch(true);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     return (
         <header className="glass sticky top-0 z-50 px-4 md:px-6 py-3 flex justify-between items-center shadow-sm">
@@ -57,6 +71,25 @@ export function Header() {
             </div>
 
             <div className="flex items-center gap-2 md:gap-4">
+                {/* Search Button */}
+                <button
+                    onClick={() => setShowSearch(true)}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200
+                               hover:bg-gray-100 transition-colors group"
+                    title="Search topics (Cmd+K)"
+                >
+                    <svg className="w-5 h-5 text-gray-600 group-hover:text-purple-600 transition-colors"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span className="text-sm text-gray-600 hidden md:inline">Search</span>
+                    <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-xs font-semibold text-gray-500
+                                   bg-white border border-gray-200 rounded">
+                        ⌘K
+                    </kbd>
+                </button>
+
                 {/* Split Screen Toggle - Desktop only */}
                 {isDesktop && (
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
@@ -220,6 +253,12 @@ export function Header() {
                 onClose={() => setShowUsernameModal(false)}
                 onSave={setUsername}
                 currentUsername={username}
+            />
+
+            {/* Global Search Modal */}
+            <GlobalSearch
+                isOpen={showSearch}
+                onClose={() => setShowSearch(false)}
             />
         </header>
     );

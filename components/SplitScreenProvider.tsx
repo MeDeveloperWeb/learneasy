@@ -35,15 +35,14 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
     const [textContent, setTextContent] = useState<string | null>(null);
     const [textTitle, setTextTitle] = useState<string | null>(null);
     const [contentType, setContentType] = useState<'iframe' | 'pdf' | 'image' | 'text' | null>(null);
-    const [isDesktop, setIsDesktop] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return window.innerWidth >= 1024;
-        }
-        return false;
-    });
+    // Always start with false to prevent hydration mismatch
+    const [isDesktop, setIsDesktop] = useState(false);
 
-    // Check if desktop on resize
+    // Set initial value and check if desktop on resize
     useEffect(() => {
+        // Set initial value
+        setIsDesktop(window.innerWidth >= 1024);
+
         const checkDesktop = () => {
             setIsDesktop(window.innerWidth >= 1024);
         };
