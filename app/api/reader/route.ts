@@ -43,6 +43,10 @@ export async function GET(request: NextRequest) {
     // Extract article content with Readability
     // Configure to preserve code blocks, tables, and other structural elements
     console.log('[Reader API] Initializing Readability...');
+    console.log('[Reader API] Document type:', document?.constructor?.name);
+    console.log('[Reader API] Document has body:', !!document?.body);
+    console.log('[Reader API] Document URL:', document?.URL);
+
     const reader = new Readability(document, {
       keepClasses: true,
       classesToPreserve: [
@@ -51,11 +55,18 @@ export async function GET(request: NextRequest) {
         'table', 'data-table'
       ],
       nbTopCandidates: 10,
-      charThreshold: 0, // Don't filter by length
     });
     console.log('[Reader API] Parsing article with Readability...');
     const article = reader.parse();
-    console.log('[Reader API] Article parsed successfully');
+    console.log('[Reader API] Article parsed, result:', article ? 'success' : 'null');
+
+    if (article) {
+      console.log('[Reader API] Article title:', article.title);
+      console.log('[Reader API] Article content length:', article.content?.length);
+      console.log('[Reader API] Article excerpt:', article.excerpt?.substring(0, 100));
+    } else {
+      console.log('[Reader API] Readability returned null - article could not be extracted');
+    }
 
     if (!article) {
       return NextResponse.json(
