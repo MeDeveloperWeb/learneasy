@@ -13,10 +13,15 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    console.log('[Reader API] Starting fetch for URL:', targetUrl);
+
     // Use linkedom for serverless-friendly HTML parsing
+    console.log('[Reader API] Importing linkedom...');
     const { parseHTML } = await import('linkedom');
+    console.log('[Reader API] Linkedom imported successfully');
 
     // Fetch the webpage
+    console.log('[Reader API] Fetching webpage...');
     const response = await fetch(targetUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; MissionCS Reader/1.0)',
@@ -28,12 +33,16 @@ export async function GET(request: NextRequest) {
     }
 
     const html = await response.text();
+    console.log('[Reader API] Fetched HTML, length:', html.length);
 
     // Parse with linkedom
+    console.log('[Reader API] Parsing HTML with linkedom...');
     const { document } = parseHTML(html);
+    console.log('[Reader API] HTML parsed successfully');
 
     // Extract article content with Readability
     // Configure to preserve code blocks, tables, and other structural elements
+    console.log('[Reader API] Initializing Readability...');
     const reader = new Readability(document, {
       keepClasses: true,
       classesToPreserve: [
@@ -44,7 +53,9 @@ export async function GET(request: NextRequest) {
       nbTopCandidates: 10,
       charThreshold: 0, // Don't filter by length
     });
+    console.log('[Reader API] Parsing article with Readability...');
     const article = reader.parse();
+    console.log('[Reader API] Article parsed successfully');
 
     if (!article) {
       return NextResponse.json(
@@ -63,11 +74,15 @@ export async function GET(request: NextRequest) {
       sourceUrl: targetUrl,
     });
   } catch (error) {
-    console.error('Reader mode error:', error);
+    console.error('[Reader API] Error occurred:', error);
+    console.error('[Reader API] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('[Reader API] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+
     return NextResponse.json(
       {
         error: 'Failed to fetch or parse the article',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
     );
