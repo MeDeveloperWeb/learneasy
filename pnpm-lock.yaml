@@ -26,6 +26,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.90.1
         version: 2.90.1
+      '@tailwindcss/postcss':
+        specifier: ^4
+        version: 4.1.18
       '@tiptap/extension-color':
         specifier: ^3.15.3
         version: 3.15.3(@tiptap/extension-text-style@3.15.3(@tiptap/core@3.15.3(@tiptap/pm@3.15.3)))
@@ -59,34 +62,6 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^3.15.3
         version: 3.15.3
-      cheerio:
-        specifier: ^1.1.2
-        version: 1.1.2
-      googleapis:
-        specifier: ^170.0.0
-        version: 170.0.0
-      jsdom:
-        specifier: ^27.4.0
-        version: 27.4.0
-      mui-tiptap:
-        specifier: ^1.28.1
-        version: 1.28.1(7e932af57c24e41b70f35a8238f90300)
-      next:
-        specifier: 16.1.1
-        version: 16.1.1(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.51.0)
-      react:
-        specifier: 19.2.3
-        version: 19.2.3
-      react-dom:
-        specifier: 19.2.3
-        version: 19.2.3(react@19.2.3)
-      react-resizable-panels:
-        specifier: ^4.3.3
-        version: 4.3.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-    devDependencies:
-      '@tailwindcss/postcss':
-        specifier: ^4
-        version: 4.1.18
       '@types/jsdom':
         specifier: ^27.0.0
         version: 27.0.0
@@ -102,6 +77,9 @@ importers:
       '@types/readable-stream':
         specifier: ^4.0.23
         version: 4.0.23
+      cheerio:
+        specifier: ^1.1.2
+        version: 1.1.2
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
@@ -111,9 +89,30 @@ importers:
       eslint-config-next:
         specifier: 16.1.1
         version: 16.1.1(@typescript-eslint/parser@8.52.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      googleapis:
+        specifier: ^170.0.0
+        version: 170.0.0
+      jsdom:
+        specifier: ^27.4.0
+        version: 27.4.0
+      mui-tiptap:
+        specifier: ^1.28.1
+        version: 1.28.1(7e932af57c24e41b70f35a8238f90300)
+      next:
+        specifier: 16.1.1
+        version: 16.1.1(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.51.0)
       prisma:
         specifier: ^6.19.1
         version: 6.19.1(typescript@5.9.3)
+      react:
+        specifier: 19.2.3
+        version: 19.2.3
+      react-dom:
+        specifier: 19.2.3
+        version: 19.2.3(react@19.2.3)
+      react-resizable-panels:
+        specifier: ^4.3.3
+        version: 4.3.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       tailwindcss:
         specifier: ^4
         version: 4.1.18
