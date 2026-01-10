@@ -20,7 +20,7 @@ export async function GET(request: Request) {
         });
 
         // Flatten
-        const topics = units.flatMap(u => u.topics);
+        const topics = units.flatMap((u) => u.topics);
 
         return NextResponse.json(topics);
     } catch (error) {
