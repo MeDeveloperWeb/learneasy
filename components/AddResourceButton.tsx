@@ -1,17 +1,32 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AddResourceForm } from './AddResourceForm';
 import { Modal } from './Modal';
+import { useSplitScreen } from './SplitScreenProvider';
 
 type ContentType = 'LINK' | 'IMAGE' | 'TEXT' | 'PDF';
 
 export function AddResourceButton({ topicId }: { topicId: string }) {
     const [isOpen, setIsOpen] = useState(false);
     const [contentType, setContentType] = useState<ContentType>('LINK');
+    const [initialUrl, setInitialUrl] = useState<string>('');
+    const { pendingResourceUrl, setPendingResourceUrl } = useSplitScreen();
+
+    // Listen for pending resource URL to auto-open modal with pre-filled URL
+    useEffect(() => {
+        if (pendingResourceUrl) {
+            setInitialUrl(pendingResourceUrl);
+            setContentType('LINK');
+            setIsOpen(true);
+            // Clear the pending URL
+            setPendingResourceUrl(null);
+        }
+    }, [pendingResourceUrl, setPendingResourceUrl]);
 
     const handleClose = () => {
         setIsOpen(false);
+        setInitialUrl('');
         // Reset to default tab after closing
         setTimeout(() => setContentType('LINK'), 300);
     };
@@ -51,6 +66,7 @@ export function AddResourceButton({ topicId }: { topicId: string }) {
                     topicId={topicId}
                     onSuccess={handleClose}
                     onContentTypeChange={setContentType}
+                    initialUrl={initialUrl}
                 />
             </Modal>
         </>

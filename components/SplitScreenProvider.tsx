@@ -30,6 +30,11 @@ interface SplitScreenContextType {
     canGoForward: boolean;
     goBack: () => void;
     goForward: () => void;
+    currentTopicId: string | null;
+    currentTopicResources: string[]; // Array of resource URLs
+    setCurrentTopic: (topicId: string | null, resourceUrls: string[]) => void;
+    pendingResourceUrl: string | null; // URL to pre-fill in add resource form
+    setPendingResourceUrl: (url: string | null) => void;
 }
 
 const SplitScreenContext = createContext<SplitScreenContextType | null>(null);
@@ -52,6 +57,11 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
     const [contentType, setContentType] = useState<'iframe' | 'pdf' | 'image' | 'text' | null>(null);
     // Always start with false to prevent hydration mismatch
     const [isDesktop, setIsDesktop] = useState(false);
+
+    // Current topic context for "Add to Page" functionality
+    const [currentTopicId, setCurrentTopicId] = useState<string | null>(null);
+    const [currentTopicResources, setCurrentTopicResources] = useState<string[]>([]);
+    const [pendingResourceUrl, setPendingResourceUrl] = useState<string | null>(null);
 
     // Navigation history
     const [navigationHistory, setNavigationHistory] = useState<NavigationHistoryEntry[]>([]);
@@ -280,6 +290,11 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         setCurrentHistoryIndex(-1);
     };
 
+    const setCurrentTopic = (topicId: string | null, resourceUrls: string[]) => {
+        setCurrentTopicId(topicId);
+        setCurrentTopicResources(resourceUrls);
+    };
+
     // Listen for navigation messages from iframes (e.g., search results)
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -314,6 +329,11 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             canGoForward,
             goBack,
             goForward,
+            currentTopicId,
+            currentTopicResources,
+            setCurrentTopic,
+            pendingResourceUrl,
+            setPendingResourceUrl,
         }}>
             {children}
         </SplitScreenContext.Provider>

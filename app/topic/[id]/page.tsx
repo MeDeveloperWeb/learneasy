@@ -5,6 +5,7 @@ import { Header } from '@/components/Header';
 import { AddResourceButton } from '@/components/AddResourceButton';
 import { ResourceCard } from '@/components/ResourceCard';
 import { TopicSearchButtons } from '@/components/TopicSearchButtons';
+import { TopicProvider } from '@/components/TopicProvider';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,9 +38,15 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
         },
     });
 
+    // Extract resource URLs for split screen context
+    const resourceUrls = resources
+        .filter(r => r.url) // Only LINK resources
+        .map(r => r.url!);
+
     return (
-        <div className="min-h-screen pb-20 relative">
-            <Header />
+        <TopicProvider topicId={id} resourceUrls={resourceUrls}>
+            <div className="min-h-screen pb-20 relative">
+                <Header />
 
             <main className="max-w-7xl mx-auto px-6 py-12">
                 {/* Breadcrumb */}
@@ -109,5 +116,6 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                 <AddResourceButton topicId={topic.id} />
             </main>
         </div>
+        </TopicProvider>
     );
 }

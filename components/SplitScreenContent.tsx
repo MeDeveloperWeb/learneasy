@@ -28,10 +28,14 @@ export function SplitScreenContent({
   switchToReaderMode,
   isMobile = false,
 }: SplitScreenContentProps) {
-  const { canGoBack, canGoForward, goBack, goForward } = useSplitScreen();
+  const { canGoBack, canGoForward, goBack, goForward, currentTopicId, currentTopicResources, setPendingResourceUrl } = useSplitScreen();
   const [iframeError, setIframeError] = useState(false);
   const [showReaderButton, setShowReaderButton] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Check if current URL is already in topic resources
+  const isResourceAlreadyAdded = originalUrl && currentTopicResources.includes(originalUrl);
+  const canAddToPage = currentTopicId && originalUrl && !isResourceAlreadyAdded && contentType !== 'text';
 
   // Reset error state and start timeout when URL changes
   useEffect(() => {
@@ -73,6 +77,12 @@ export function SplitScreenContent({
       clearTimeout(timeoutRef.current);
     }
     setIframeError(true);
+  };
+
+  const handleAddToPage = () => {
+    if (!originalUrl) return;
+    // Set the pending URL to trigger the add resource modal
+    setPendingResourceUrl(originalUrl);
   };
 
   // Render text content
@@ -178,7 +188,7 @@ export function SplitScreenContent({
             </button>
           </div>
 
-          {/* Center: Reader mode and View original buttons */}
+          {/* Center: Reader mode, Add to Page, and View original buttons */}
           <div className="flex-1 flex justify-center items-center gap-2">
             {showReaderButton && !iframeError && contentType === 'iframe' && (
               <button
@@ -191,6 +201,19 @@ export function SplitScreenContent({
                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
                 Reader Mode
+              </button>
+            )}
+            {canAddToPage && (
+              <button
+                type="button"
+                onClick={handleAddToPage}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg hover:from-purple-600 hover:to-teal-500 transition-colors font-medium"
+                title="Add this resource to the current page"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add to Page
               </button>
             )}
             {!iframeError && (originalUrl || iframeUrl) && (

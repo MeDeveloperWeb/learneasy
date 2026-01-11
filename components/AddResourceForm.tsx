@@ -11,11 +11,13 @@ type ContentType = 'LINK' | 'IMAGE' | 'TEXT' | 'PDF';
 export function AddResourceForm({
     topicId,
     onSuccess,
-    onContentTypeChange
+    onContentTypeChange,
+    initialUrl = ""
 }: {
     topicId: string;
     onSuccess?: () => void;
     onContentTypeChange?: (type: ContentType) => void;
+    initialUrl?: string;
 }) {
     const [contentType, setContentType] = useState<ContentType>('LINK');
 
@@ -24,7 +26,7 @@ export function AddResourceForm({
         onContentTypeChange?.(type);
     };
     const [name, setName] = useState("");
-    const [url, setUrl] = useState("");
+    const [url, setUrl] = useState(initialUrl);
     const [textContent, setTextContent] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [pdfFile, setPdfFile] = useState<File | null>(null);

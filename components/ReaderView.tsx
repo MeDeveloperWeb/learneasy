@@ -19,12 +19,16 @@ interface ReaderViewProps {
 }
 
 export function ReaderView({ url, onClose }: ReaderViewProps) {
-  const { canGoBack, canGoForward, goBack, goForward, openInSplitScreen, splitScreenEnabled, originalUrl } = useSplitScreen();
+  const { canGoBack, canGoForward, goBack, goForward, openInSplitScreen, splitScreenEnabled, originalUrl, currentTopicId, currentTopicResources, setPendingResourceUrl } = useSplitScreen();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Check if current URL is already in topic resources
+  const isResourceAlreadyAdded = originalUrl && currentTopicResources.includes(originalUrl);
+  const canAddToPage = currentTopicId && originalUrl && !isResourceAlreadyAdded;
 
   useEffect(() => {
     async function fetchArticle() {
@@ -127,6 +131,12 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
       contentElement.removeEventListener('click', handleLinkClick, true);
     };
   }, [article, openInSplitScreen]);
+
+  const handleAddToPage = () => {
+    if (!originalUrl) return;
+    // Set the pending URL to trigger the add resource modal
+    setPendingResourceUrl(originalUrl);
+  };
 
   if (loading) {
     return (
@@ -365,8 +375,21 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
           <span>Reader Mode</span>
         </div>
 
-        {/* Right side: View original and Close buttons */}
+        {/* Right side: Add to Page, View original and Close buttons */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          {canAddToPage && (
+            <button
+              type="button"
+              onClick={handleAddToPage}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg hover:from-purple-600 hover:to-teal-500 transition-colors font-medium"
+              title="Add this resource to the current page"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add to Page
+            </button>
+          )}
           <a
             href={originalUrl || url}
             target="_blank"
