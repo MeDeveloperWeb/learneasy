@@ -78,11 +78,19 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                         <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-teal-400" />
                         <span className="text-sm text-gray-400 font-medium">{topic.unit.title}</span>
                     </div>
+
+                    {/* Search buttons - show on top on mobile, on the right on desktop */}
+                    <div className="mb-4 lg:hidden">
+                        <TopicSearchButtons topicTitle={topic.title} />
+                    </div>
+
                     <div className="flex items-start justify-between gap-4 mb-2">
                         <h1 className="text-3xl font-bold text-gray-900 flex-1">
                             {topic.title}
                         </h1>
-                        <TopicSearchButtons topicTitle={topic.title} />
+                        <div className="hidden lg:block">
+                            <TopicSearchButtons topicTitle={topic.title} />
+                        </div>
                     </div>
                     <p className="text-gray-500 flex items-center gap-2">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
