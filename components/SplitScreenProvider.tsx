@@ -64,7 +64,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
     };
 
     const openInSplitScreen = async (url: string, type?: 'iframe' | 'pdf' | 'image') => {
-        if (splitScreenEnabled && isDesktop) {
+        if (splitScreenEnabled) {
             // Clear text content when opening a link
             setTextContent(null);
             setTextTitle(null);
@@ -130,13 +130,12 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
     };
 
     const openTextInSplitScreen = (content: string, title: string) => {
-        if (splitScreenEnabled && isDesktop) {
-            setIframeUrl(null);
-            setReaderUrl(null);
-            setTextContent(content);
-            setTextTitle(title);
-            setContentType('text');
-        }
+        // Always set the content - the layout component decides whether to show it
+        setIframeUrl(null);
+        setReaderUrl(null);
+        setTextContent(content);
+        setTextTitle(title);
+        setContentType('text');
     };
 
     const closeSplitScreen = () => {

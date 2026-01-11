@@ -71,8 +71,8 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
           const href = link.getAttribute('href');
 
           if (href) {
-            // If split screen is enabled and on desktop, open in split screen
-            if (splitScreenEnabled && isDesktop) {
+            // If split screen is enabled, open in split screen (works on both mobile and desktop)
+            if (splitScreenEnabled) {
               openInSplitScreen(href);
             } else {
               // Otherwise open in new tab

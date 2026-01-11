@@ -130,12 +130,17 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
         // Handle TEXT content type
         if (resource.contentType === 'TEXT') {
             e.preventDefault();
-            if (splitScreenEnabled && isDesktop && resource.textContent) {
-                // Open in split screen if enabled and on desktop
-                openTextInSplitScreen(resource.textContent, resource.name);
-            } else {
-                // Otherwise open in modal
-                setShowTextModal(true);
+            if (resource.textContent) {
+                if (!isDesktop) {
+                    // On mobile, always open in drawer
+                    openTextInSplitScreen(resource.textContent, resource.name);
+                } else if (splitScreenEnabled) {
+                    // On desktop, only open in split screen if enabled
+                    openTextInSplitScreen(resource.textContent, resource.name);
+                } else {
+                    // On desktop with split screen disabled, open in modal
+                    setShowTextModal(true);
+                }
             }
             return;
         }
@@ -154,8 +159,8 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
             return;
         }
 
-        // If split screen is enabled and on desktop, open with appropriate viewer
-        if (splitScreenEnabled && isDesktop && (resource.contentType === 'LINK' || resource.contentType === 'PDF' || resource.contentType === 'IMAGE')) {
+        // If split screen is enabled, open with appropriate viewer (works on both mobile and desktop)
+        if (splitScreenEnabled && (resource.contentType === 'LINK' || resource.contentType === 'PDF' || resource.contentType === 'IMAGE')) {
             e.preventDefault();
             if (resource.contentType === 'PDF') {
                 openInSplitScreen(targetUrl, 'pdf');
