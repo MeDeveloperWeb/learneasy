@@ -9,6 +9,31 @@ export default function SearchPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const renderedRef = useRef(false);
 
+    // Prevent this page from adding to browser history when in iframe
+    useEffect(() => {
+        if (window.self !== window.top) {
+            // We're in an iframe - completely disable history manipulation
+            const originalPushState = window.history.pushState.bind(window.history);
+            const originalReplaceState = window.history.replaceState.bind(window.history);
+
+            // Override both pushState and replaceState to do nothing
+            window.history.pushState = function(...args) {
+                console.log('[SearchPage] Blocked pushState in iframe');
+                // Do nothing - prevent history manipulation
+            };
+
+            window.history.replaceState = function(...args) {
+                console.log('[SearchPage] Blocked replaceState in iframe');
+                // Do nothing - prevent history manipulation
+            };
+
+            return () => {
+                window.history.pushState = originalPushState;
+                window.history.replaceState = originalReplaceState;
+            };
+        }
+    }, []);
+
     useEffect(() => {
         // Configure Google CSE to use explicit rendering
         (window as any).__gcse = {
@@ -79,23 +104,46 @@ export default function SearchPage() {
 
             if (link && link.href) {
                 console.log('[SearchPage] Link clicked:', link.href);
-                // Check if it's a search result link
+                // Check if it's a search result link OR pagination link
                 const isResultLink = link.classList.contains('gs-title') ||
                                     link.closest('.gs-title') ||
-                                    (link.closest('.gsc-webResult, .gsc-result') &&
-                                     !link.closest('.gsc-cursor-page')); // Exclude pagination
+                                    link.closest('.gsc-webResult, .gsc-result');
 
-                console.log('[SearchPage] Is result link?', isResultLink);
+                const isPaginationLink = link.closest('.gsc-cursor-page');
 
-                if (isResultLink) {
+                console.log('[SearchPage] Is result link?', isResultLink, 'Is pagination?', isPaginationLink);
+
+                // Prevent ALL links from navigating normally
+                if (isResultLink || isPaginationLink) {
                     e.preventDefault();
 
-                    console.log('[SearchPage] Sending postMessage to parent with URL:', link.href);
-                    // Tell parent window to handle navigation (iframe check, reader mode, etc.)
-                    window.parent.postMessage({
-                        type: 'NAVIGATE_SPLIT_SCREEN',
-                        url: link.href
-                    }, '*');
+                    if (isResultLink && !isPaginationLink) {
+                        console.log('[SearchPage] Sending postMessage to parent with URL:', link.href);
+                        // Tell parent window to handle navigation (iframe check, reader mode, etc.)
+                        window.parent.postMessage({
+                            type: 'NAVIGATE_SPLIT_SCREEN',
+                            url: link.href
+                        }, '*');
+                    } else if (isPaginationLink) {
+                        // For pagination, prevent navigation and manually trigger search
+                        console.log('[SearchPage] Pagination click - preventing navigation');
+                        // Let Google CSE handle pagination through its API instead
+                        // This prevents any history changes
+                        const gname = 'storesearch';
+                        const google = (window as any).google;
+                        if (google?.search?.cse?.element) {
+                            const element = google.search.cse.element.getElement(gname);
+                            if (element) {
+                                // Get the page number from the link
+                                const pageMatch = link.textContent?.match(/\d+/);
+                                if (pageMatch) {
+                                    const page = parseInt(pageMatch[0]);
+                                    // Google CSE pages are 0-indexed
+                                    element.gotoPage(page - 1);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         };

@@ -50,7 +50,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         return false;
     });
     const [iframeUrl, setIframeUrl] = useState<string | null>(null);
-    const [originalUrl, setOriginalUrl] = useState<string | null>(null); // The actual target URL
+    const [originalUrl, setOriginalUrl] = useState<string | null>(null);
     const [readerUrl, setReaderUrl] = useState<string | null>(null);
     const [textContent, setTextContent] = useState<string | null>(null);
     const [textTitle, setTextTitle] = useState<string | null>(null);
@@ -98,6 +98,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             setCurrentHistoryIndex(-1);
         }
     };
+
 
     // Helper function to add entry to navigation history
     const addToHistory = (entry: NavigationHistoryEntry) => {
@@ -164,14 +165,18 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             setTextContent(null);
             setTextTitle(null);
 
-            // Special handling for internal search page - convert to Google search URL for "View original"
+            // Special handling for internal search page - ensure it loads in iframe and convert URL for "View original"
             let displayOriginalUrl = actualUrl;
+            let iframeSourceUrl = actualUrl;
             try {
                 const urlObj = new URL(actualUrl, window.location.origin);
                 if (urlObj.pathname === '/search' && urlObj.searchParams.has('q')) {
                     const query = urlObj.searchParams.get('q');
                     displayOriginalUrl = `https://www.google.com/search?q=${encodeURIComponent(query!)}`;
+                    // Make sure it loads as a full URL so it's treated as an iframe
+                    iframeSourceUrl = window.location.origin + actualUrl;
                     console.log('[openInSplitScreen] Converted internal search to Google URL:', displayOriginalUrl);
+                    console.log('[openInSplitScreen] Loading search in iframe:', iframeSourceUrl);
                 }
             } catch (e) {
                 // If URL parsing fails, use actualUrl as-is

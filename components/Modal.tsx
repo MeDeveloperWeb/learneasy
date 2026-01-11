@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ModalProps {
     isOpen: boolean;
@@ -12,6 +13,7 @@ interface ModalProps {
 
 export function Modal({ isOpen, onClose, children, title = "Add Resource", size = 'md' }: ModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
+    const [mounted, setMounted] = useState(false);
 
     const sizeClasses = {
         sm: 'max-w-md w-full',
@@ -20,6 +22,10 @@ export function Modal({ isOpen, onClose, children, title = "Add Resource", size 
         xl: 'max-w-5xl w-full',
         full: 'w-[80vw]'
     };
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
@@ -37,11 +43,11 @@ export function Modal({ isOpen, onClose, children, title = "Add Resource", size 
         };
     }, [isOpen, onClose]);
 
-    if (!isOpen) return null;
+    if (!isOpen || !mounted) return null;
 
-    return (
+    const modalContent = (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4
                        bg-black/40 backdrop-blur-sm animate-fade-in"
             onClick={(e) => {
                 if (e.target === e.currentTarget) onClose();
@@ -75,4 +81,6 @@ export function Modal({ isOpen, onClose, children, title = "Add Resource", size 
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }
