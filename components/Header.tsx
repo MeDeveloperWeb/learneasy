@@ -95,18 +95,40 @@ export function Header() {
                     </kbd>
                 </button>
 
-                {/* Split Screen Toggle - Always visible */}
+                {/* Split Screen Toggle - Desktop: toggle switch, Mobile: button */}
                 {mounted && (
-                    <button
-                        onClick={() => setSplitScreenEnabled(!splitScreenEnabled)}
-                        className={`px-3 py-1.5 rounded-lg border transition-colors
-                                   ${splitScreenEnabled
-                                ? 'bg-gradient-to-r from-purple-500 to-teal-400 border-purple-400 text-white'
-                                : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'}`}
-                        title={splitScreenEnabled ? 'Disable split screen' : 'Enable split screen'}
-                    >
-                        <span className="text-xs md:text-sm font-medium">Split View</span>
-                    </button>
+                    <>
+                        {/* Desktop: Toggle switch */}
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
+                            <span className="text-sm text-gray-700 font-medium">Split View</span>
+                            <button
+                                onClick={() => setSplitScreenEnabled(!splitScreenEnabled)}
+                                className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0
+                                           ${splitScreenEnabled
+                                        ? 'bg-gradient-to-r from-purple-500 to-teal-400'
+                                        : 'bg-gray-300'}`}
+                                title={splitScreenEnabled ? 'Disable split screen' : 'Enable split screen'}
+                            >
+                                <div
+                                    className={`absolute top-1 w-4 h-4 bg-white rounded-full
+                                               shadow-sm transition-transform
+                                               ${splitScreenEnabled ? 'translate-x-6' : 'translate-x-1'}`}
+                                />
+                            </button>
+                        </div>
+
+                        {/* Mobile: Color-changing button */}
+                        <button
+                            onClick={() => setSplitScreenEnabled(!splitScreenEnabled)}
+                            className={`md:hidden px-3 py-1.5 rounded-lg border transition-colors
+                                       ${splitScreenEnabled
+                                    ? 'bg-gradient-to-r from-purple-500 to-teal-400 border-purple-400 text-white'
+                                    : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'}`}
+                            title={splitScreenEnabled ? 'Disable split screen' : 'Enable split screen'}
+                        >
+                            <span className="text-xs font-medium">Split View</span>
+                        </button>
+                    </>
                 )}
 
                 {/* User Section */}

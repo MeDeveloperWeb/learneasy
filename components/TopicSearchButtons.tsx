@@ -23,8 +23,8 @@ export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
     };
 
     return (
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-            {/* Google Search Button - 1/4 width */}
+        <div className="flex items-center gap-2">
+            {/* Google Search Button */}
             <a
                 href={`https://www.google.com/search?q=${encodeURIComponent(topicTitle)}`}
                 target="_blank"
@@ -32,7 +32,7 @@ export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
                 className="flex items-center justify-center gap-2 px-3 py-2 bg-white border-2 border-gray-200
                          rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all
                          text-gray-700 hover:text-purple-700 font-medium text-sm group
-                         shadow-sm hover:shadow-md active:scale-95 flex-[1] sm:flex-initial"
+                         shadow-sm hover:shadow-md active:scale-95"
                 title="Search on Google in new tab"
             >
                 <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
@@ -44,14 +44,14 @@ export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
                 </svg>
             </a>
 
-            {/* Search in Panel Button - 3/4 width - Only show when split screen is enabled */}
+            {/* Search in Panel Button - Only show when split screen is enabled */}
             {mounted && splitScreenEnabled && (
                 <button
                     onClick={handleSearchInPanel}
                     className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500 to-teal-400
                              rounded-lg hover:from-purple-600 hover:to-teal-500 transition-all
-                             text-white font-medium text-xs group shadow-sm hover:shadow-md
-                             active:scale-95 flex-[3] sm:flex-initial"
+                             text-white font-medium text-sm group shadow-sm hover:shadow-md
+                             active:scale-95"
                     title="Search in split panel"
                 >
                     <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
