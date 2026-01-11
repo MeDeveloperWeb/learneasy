@@ -143,6 +143,18 @@ export default function SearchPage() {
                     width: 100% !important;
                 }
 
+                .gsc-wrapper {
+                    max-width: none !important;
+                    width: 100% !important;
+                }
+
+                form.gsc-search-box,
+                .gsc-search-box {
+                    max-width: none !important;
+                    width: 100% !important;
+                    margin: 0 !important;
+                }
+
                 .gsc-input-box {
                     border: 2px solid #e5e7eb !important;
                     border-radius: 0.75rem !important;
