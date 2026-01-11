@@ -19,7 +19,7 @@ interface ReaderViewProps {
 }
 
 export function ReaderView({ url, onClose }: ReaderViewProps) {
-  const { canGoBack, canGoForward, goBack, goForward, openInSplitScreen, splitScreenEnabled } = useSplitScreen();
+  const { canGoBack, canGoForward, goBack, goForward, openInSplitScreen, splitScreenEnabled, originalUrl } = useSplitScreen();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -162,7 +162,7 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
             Close
           </button>
           <a
-            href={url}
+            href={originalUrl || url}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-teal-400
@@ -368,7 +368,7 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
         {/* Right side: View original and Close buttons */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <a
-            href={url}
+            href={originalUrl || url}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1"

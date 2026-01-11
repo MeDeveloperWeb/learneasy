@@ -8,6 +8,7 @@ interface MobileDrawerProps {
   onClose: () => void;
   contentType: 'iframe' | 'pdf' | 'image' | 'text' | null;
   iframeUrl: string | null;
+  originalUrl: string | null;
   readerUrl: string | null;
   textContent: string | null;
   textTitle: string | null;
@@ -19,6 +20,7 @@ export function MobileDrawer({
   onClose,
   contentType,
   iframeUrl,
+  originalUrl,
   readerUrl,
   textContent,
   textTitle,
@@ -168,6 +170,7 @@ export function MobileDrawer({
           isMobile={true}
           contentType={contentType}
           iframeUrl={iframeUrl}
+          originalUrl={originalUrl}
           readerUrl={readerUrl}
           textContent={textContent}
           textTitle={textTitle}

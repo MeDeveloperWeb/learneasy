@@ -8,6 +8,7 @@ import { useSplitScreen } from "./SplitScreenProvider";
 interface SplitScreenContentProps {
   contentType: 'iframe' | 'pdf' | 'image' | 'text' | null;
   iframeUrl: string | null;
+  originalUrl: string | null; // The actual target URL to show in "View original"
   readerUrl: string | null;
   textContent: string | null;
   textTitle: string | null;
@@ -19,6 +20,7 @@ interface SplitScreenContentProps {
 export function SplitScreenContent({
   contentType,
   iframeUrl,
+  originalUrl,
   readerUrl,
   textContent,
   textTitle,
@@ -191,9 +193,9 @@ export function SplitScreenContent({
                 Reader Mode
               </button>
             )}
-            {!iframeError && iframeUrl && (
+            {!iframeError && (originalUrl || iframeUrl) && (
               <a
-                href={iframeUrl}
+                href={originalUrl || iframeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-purple-600 hover:text-purple-700 font-medium hover:bg-purple-50 rounded-lg transition-colors"
@@ -264,7 +266,7 @@ export function SplitScreenContent({
                 Try Reader Mode
               </button>
               <a
-                href={iframeUrl}
+                href={originalUrl || iframeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-800

@@ -78,15 +78,19 @@ export default function SearchPage() {
             const link = target.closest('a');
 
             if (link && link.href) {
+                console.log('[SearchPage] Link clicked:', link.href);
                 // Check if it's a search result link
                 const isResultLink = link.classList.contains('gs-title') ||
                                     link.closest('.gs-title') ||
                                     (link.closest('.gsc-webResult, .gsc-result') &&
                                      !link.closest('.gsc-cursor-page')); // Exclude pagination
 
+                console.log('[SearchPage] Is result link?', isResultLink);
+
                 if (isResultLink) {
                     e.preventDefault();
 
+                    console.log('[SearchPage] Sending postMessage to parent with URL:', link.href);
                     // Tell parent window to handle navigation (iframe check, reader mode, etc.)
                     window.parent.postMessage({
                         type: 'NAVIGATE_SPLIT_SCREEN',
@@ -110,7 +114,7 @@ export default function SearchPage() {
 
     return (
         <div className="min-h-screen bg-white p-6">
-            <div className="max-w-5xl mx-auto">
+            <div className="w-full">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">
                         Google Search
@@ -132,6 +136,11 @@ export default function SearchPage() {
                     border: none !important;
                     background: transparent !important;
                     font-family: inherit !important;
+                }
+
+                .gsc-above-wrapper-area {
+                    max-width: none !important;
+                    width: 100% !important;
                 }
 
                 .gsc-input-box {

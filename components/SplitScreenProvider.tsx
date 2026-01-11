@@ -1,10 +1,11 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getYouTubeEmbedUrl, isEmbeddableContent } from '@/lib/embed-utils';
+import { getYouTubeEmbedUrl, isEmbeddableContent, extractActualUrl } from '@/lib/embed-utils';
 
 interface NavigationHistoryEntry {
     url: string;
+    originalUrl?: string; // The actual target URL (for Google redirects, this is the extracted URL)
     type: 'iframe' | 'pdf' | 'image' | 'text';
     textContent?: string;
     textTitle?: string;
@@ -15,6 +16,7 @@ interface SplitScreenContextType {
     splitScreenEnabled: boolean;
     setSplitScreenEnabled: (enabled: boolean) => void;
     iframeUrl: string | null;
+    originalUrl: string | null; // The actual target URL to show in "View original"
     readerUrl: string | null;
     textContent: string | null;
     textTitle: string | null;
@@ -43,6 +45,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         return false;
     });
     const [iframeUrl, setIframeUrl] = useState<string | null>(null);
+    const [originalUrl, setOriginalUrl] = useState<string | null>(null); // The actual target URL
     const [readerUrl, setReaderUrl] = useState<string | null>(null);
     const [textContent, setTextContent] = useState<string | null>(null);
     const [textTitle, setTextTitle] = useState<string | null>(null);
@@ -76,6 +79,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('splitScreenEnabled', JSON.stringify(enabled));
         if (!enabled) {
             setIframeUrl(null);
+            setOriginalUrl(null);
             setReaderUrl(null);
             setTextContent(null);
             setTextTitle(null);
@@ -101,11 +105,13 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             setTextContent(entry.textContent);
             setTextTitle(entry.textTitle);
             setIframeUrl(null);
+            setOriginalUrl(null);
             setReaderUrl(null);
             setContentType('text');
         } else {
             setTextContent(null);
             setTextTitle(null);
+            setOriginalUrl(entry.originalUrl || entry.url); // Use originalUrl if available, otherwise url
             if (entry.isReaderMode) {
                 setReaderUrl(entry.url);
                 setIframeUrl(null);
@@ -135,67 +141,105 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
     };
 
     const openInSplitScreen = async (url: string, type?: 'iframe' | 'pdf' | 'image') => {
+        console.log('[openInSplitScreen] Called with URL:', url, 'Type:', type);
+
+        // Extract actual URL from Google redirect URLs
+        const actualUrl = extractActualUrl(url);
+        if (actualUrl !== url) {
+            console.log('[openInSplitScreen] Extracted actual URL:', actualUrl);
+        }
+
         if (splitScreenEnabled) {
             // Clear text content when opening a link
             setTextContent(null);
             setTextTitle(null);
 
+            // Special handling for internal search page - convert to Google search URL for "View original"
+            let displayOriginalUrl = actualUrl;
+            try {
+                const urlObj = new URL(actualUrl, window.location.origin);
+                if (urlObj.pathname === '/search' && urlObj.searchParams.has('q')) {
+                    const query = urlObj.searchParams.get('q');
+                    displayOriginalUrl = `https://www.google.com/search?q=${encodeURIComponent(query!)}`;
+                    console.log('[openInSplitScreen] Converted internal search to Google URL:', displayOriginalUrl);
+                }
+            } catch (e) {
+                // If URL parsing fails, use actualUrl as-is
+            }
+
             // If type is specified (PDF or IMAGE), use it directly
             if (type === 'pdf' || type === 'image') {
+                console.log('[openInSplitScreen] Using specified type:', type);
                 setReaderUrl(null);
-                setIframeUrl(url);
+                setIframeUrl(actualUrl);
+                setOriginalUrl(displayOriginalUrl);
                 setContentType(type);
-                addToHistory({ url, type, isReaderMode: false });
+                addToHistory({ url: actualUrl, originalUrl: displayOriginalUrl, type, isReaderMode: false });
                 return;
             }
 
             // Default to iframe behavior for links
             // Check if it's a YouTube URL and convert to embed format
-            const youtubeEmbedUrl = getYouTubeEmbedUrl(url);
+            const youtubeEmbedUrl = getYouTubeEmbedUrl(actualUrl);
+            console.log('[openInSplitScreen] YouTube embed URL:', youtubeEmbedUrl);
             if (youtubeEmbedUrl) {
+                console.log('[openInSplitScreen] Using YouTube embed');
                 setReaderUrl(null);
                 setIframeUrl(youtubeEmbedUrl);
+                setOriginalUrl(displayOriginalUrl); // Keep the original YouTube URL, not the embed URL
                 setContentType('iframe');
-                addToHistory({ url: youtubeEmbedUrl, type: 'iframe', isReaderMode: false });
+                addToHistory({ url: youtubeEmbedUrl, originalUrl: displayOriginalUrl, type: 'iframe', isReaderMode: false });
                 return;
             }
 
             // Check if it's other known embeddable content
-            if (isEmbeddableContent(url)) {
+            const isEmbeddable = isEmbeddableContent(actualUrl);
+            console.log('[openInSplitScreen] Is embeddable content?', isEmbeddable);
+            if (isEmbeddable) {
+                console.log('[openInSplitScreen] Using known embeddable content');
                 setReaderUrl(null);
-                setIframeUrl(url);
+                setIframeUrl(actualUrl);
+                setOriginalUrl(displayOriginalUrl);
                 setContentType('iframe');
-                addToHistory({ url, type: 'iframe', isReaderMode: false });
+                addToHistory({ url: actualUrl, originalUrl: displayOriginalUrl, type: 'iframe', isReaderMode: false });
                 return;
             }
 
             // For other URLs, check headers to see if they can be embedded
+            console.log('[openInSplitScreen] Checking iframe compatibility via API');
             try {
-                const response = await fetch(`/api/check-iframe?url=${encodeURIComponent(url)}`);
+                const response = await fetch(`/api/check-iframe?url=${encodeURIComponent(actualUrl)}`);
                 const data = await response.json();
+                console.log('[openInSplitScreen] API response:', data);
 
                 if (data.canEmbed === false) {
                     // Blocked - use reader mode directly
+                    console.log('[openInSplitScreen] Using reader mode (blocked)');
                     setIframeUrl(null);
-                    setReaderUrl(url);
+                    setReaderUrl(actualUrl);
+                    setOriginalUrl(displayOriginalUrl);
                     setContentType(null);
-                    addToHistory({ url, type: 'iframe', isReaderMode: true });
+                    addToHistory({ url: actualUrl, originalUrl: displayOriginalUrl, type: 'iframe', isReaderMode: true });
                 } else {
                     // Can embed or unknown - try iframe
+                    console.log('[openInSplitScreen] Trying iframe (allowed or unknown)');
                     setReaderUrl(null);
-                    setIframeUrl(url);
+                    setIframeUrl(actualUrl);
+                    setOriginalUrl(displayOriginalUrl);
                     setContentType('iframe');
-                    addToHistory({ url, type: 'iframe', isReaderMode: false });
+                    addToHistory({ url: actualUrl, originalUrl: displayOriginalUrl, type: 'iframe', isReaderMode: false });
                 }
             } catch (error) {
                 // If check fails, default to trying iframe
+                console.log('[openInSplitScreen] API check failed, defaulting to iframe', error);
                 setReaderUrl(null);
-                setIframeUrl(url);
+                setIframeUrl(actualUrl);
+                setOriginalUrl(displayOriginalUrl);
                 setContentType('iframe');
-                addToHistory({ url, type: 'iframe', isReaderMode: false });
+                addToHistory({ url: actualUrl, originalUrl: displayOriginalUrl, type: 'iframe', isReaderMode: false });
             }
         } else {
-            window.open(url, '_blank');
+            window.open(actualUrl, '_blank');
         }
     };
 
@@ -227,6 +271,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
 
     const closeSplitScreen = () => {
         setIframeUrl(null);
+        setOriginalUrl(null);
         setReaderUrl(null);
         setTextContent(null);
         setTextTitle(null);
@@ -238,7 +283,9 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
     // Listen for navigation messages from iframes (e.g., search results)
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
+            console.log('[SplitScreen] Received postMessage:', event.data);
             if (event.data?.type === 'NAVIGATE_SPLIT_SCREEN' && event.data?.url) {
+                console.log('[SplitScreen] Navigating to URL from iframe:', event.data.url);
                 // Use the existing openInSplitScreen logic (handles iframe check, reader mode, etc.)
                 openInSplitScreen(event.data.url);
             }
@@ -253,6 +300,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             splitScreenEnabled,
             setSplitScreenEnabled,
             iframeUrl,
+            originalUrl,
             readerUrl,
             textContent,
             textTitle,

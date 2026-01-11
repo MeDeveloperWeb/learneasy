@@ -9,6 +9,7 @@ export function SplitScreenLayout({ children }: { children: React.ReactNode }) {
   const {
     splitScreenEnabled,
     iframeUrl,
+    originalUrl,
     readerUrl,
     textContent,
     textTitle,
@@ -42,6 +43,7 @@ export function SplitScreenLayout({ children }: { children: React.ReactNode }) {
               isMobile={false}
               contentType={contentType}
               iframeUrl={iframeUrl}
+              originalUrl={originalUrl}
               readerUrl={readerUrl}
               textContent={textContent}
               textTitle={textTitle}
@@ -66,6 +68,7 @@ export function SplitScreenLayout({ children }: { children: React.ReactNode }) {
           onClose={closeSplitScreen}
           contentType={contentType}
           iframeUrl={iframeUrl}
+          originalUrl={originalUrl}
           readerUrl={readerUrl}
           textContent={textContent}
           textTitle={textTitle}
