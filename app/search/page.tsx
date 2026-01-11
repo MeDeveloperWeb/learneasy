@@ -280,6 +280,17 @@ export default function SearchPage() {
                     color: #4b5563 !important;
                     padding: 0.5rem 1rem !important;
                     margin: 0 0.25rem !important;
+                    font-size: 0.875rem !important;
+                    min-width: auto !important;
+                    white-space: nowrap !important;
+                }
+
+                @media (max-width: 640px) {
+                    .gsc-cursor-page {
+                        padding: 0.375rem 0.625rem !important;
+                        margin: 0 0.125rem !important;
+                        font-size: 0.75rem !important;
+                    }
                 }
 
                 .gsc-cursor-page:hover {
@@ -291,6 +302,21 @@ export default function SearchPage() {
                     background: linear-gradient(to right, #a855f7, #2dd4bf) !important;
                     border: none !important;
                     color: white !important;
+                }
+
+                .gsc-cursor-box {
+                    overflow-x: auto !important;
+                    -webkit-overflow-scrolling: touch !important;
+                }
+
+                @media (max-width: 640px) {
+                    .gsc-cursor {
+                        display: flex !important;
+                        flex-wrap: nowrap !important;
+                        overflow-x: auto !important;
+                        -webkit-overflow-scrolling: touch !important;
+                        padding-bottom: 0.5rem !important;
+                    }
                 }
             `}</style>
         </div>

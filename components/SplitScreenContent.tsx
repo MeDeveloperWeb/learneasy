@@ -35,7 +35,9 @@ export function SplitScreenContent({
 
   // Check if current URL is already in topic resources
   const isResourceAlreadyAdded = originalUrl && currentTopicResources.includes(originalUrl);
-  const canAddToPage = currentTopicId && originalUrl && !isResourceAlreadyAdded && contentType !== 'text';
+  // Don't show "Add to Page" button for Google search pages
+  const isGoogleSearchPage = originalUrl?.includes('google.com/search');
+  const canAddToPage = currentTopicId && originalUrl && !isResourceAlreadyAdded && contentType !== 'text' && !isGoogleSearchPage;
 
   // Reset error state and start timeout when URL changes
   useEffect(() => {
@@ -151,7 +153,7 @@ export function SplitScreenContent({
 
   // Render reader view
   if (readerUrl) {
-    return <ReaderView url={readerUrl} onClose={onClose} />;
+    return <ReaderView url={readerUrl} onClose={onClose} isMobile={isMobile} />;
   }
 
   // Render iframe/PDF/image content
@@ -195,12 +197,13 @@ export function SplitScreenContent({
                 type="button"
                 onClick={switchToReaderMode}
                 className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium"
+                title="Reader Mode"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
-                Reader Mode
+                {!isMobile && "Reader Mode"}
               </button>
             )}
             {canAddToPage && (
@@ -222,8 +225,9 @@ export function SplitScreenContent({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-purple-600 hover:text-purple-700 font-medium hover:bg-purple-50 rounded-lg transition-colors"
+                title="View original"
               >
-                View original
+                {!isMobile && "View original"}
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -281,12 +285,13 @@ export function SplitScreenContent({
                 onClick={switchToReaderMode}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-teal-400
                          text-white rounded-lg font-medium hover:shadow-lg transition-all"
+                title="Try Reader Mode"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
-                Try Reader Mode
+                {!isMobile && "Try Reader Mode"}
               </button>
               <a
                 href={originalUrl || iframeUrl}
@@ -294,8 +299,9 @@ export function SplitScreenContent({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-800
                          rounded-lg font-medium hover:bg-gray-300 transition-all"
+                title="Open in new tab"
               >
-                Open in new tab
+                {!isMobile && "Open in new tab"}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
