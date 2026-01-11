@@ -235,6 +235,19 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         setCurrentHistoryIndex(-1);
     };
 
+    // Listen for navigation messages from iframes (e.g., search results)
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data?.type === 'NAVIGATE_SPLIT_SCREEN' && event.data?.url) {
+                // Use the existing openInSplitScreen logic (handles iframe check, reader mode, etc.)
+                openInSplitScreen(event.data.url);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [openInSplitScreen]);
+
     return (
         <SplitScreenContext.Provider value={{
             splitScreenEnabled,

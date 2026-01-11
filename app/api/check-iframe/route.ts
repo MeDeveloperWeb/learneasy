@@ -11,6 +11,18 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Check if this is an internal URL (relative or same origin)
+  const isInternalUrl = targetUrl.startsWith('/') ||
+                        targetUrl.startsWith(request.nextUrl.origin);
+
+  if (isInternalUrl) {
+    // Internal URLs are always embeddable
+    return NextResponse.json({
+      canEmbed: true,
+      reason: 'Internal URL - always embeddable',
+    });
+  }
+
   try {
     // Do a HEAD request to check headers without downloading the full page
     const response = await fetch(targetUrl, {
