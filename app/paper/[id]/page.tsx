@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { AddTopicButton } from '@/components/AddTopicButton';
-import { TopicItem } from '@/components/TopicItem';
+import { UnitSection } from '@/components/UnitSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,40 +96,7 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
                 {/* Units */}
                 <div className="space-y-6">
                     {paper.units.map((unit, unitIndex) => (
-                        <div
-                            key={unit.id}
-                            className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden
-                                       animate-slide-up stagger-${Math.min(unitIndex + 1, 6)}`}
-                            style={{ opacity: 0 }}
-                        >
-                            {/* Unit Header */}
-                            <div className="bg-gradient-to-r from-purple-50 to-teal-50 px-6 py-4 
-                                           border-b border-gray-100">
-                                <h2 className="font-bold text-gray-800 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-white shadow-sm 
-                                                   flex items-center justify-center text-sm font-bold
-                                                   text-purple-600">
-                                        {unitIndex + 1}
-                                    </span>
-                                    {unit.title}
-                                </h2>
-                            </div>
-
-                            {/* Topics List */}
-                            <div className="p-6">
-                                {unit.topics.length > 0 ? (
-                                    <ul className="space-y-2">
-                                        {unit.topics.map(topic => (
-                                            <TopicItem key={topic.id} topic={topic} />
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <p className="text-gray-400 text-sm text-center py-4">
-                                        No topics in this unit yet.
-                                    </p>
-                                )}
-                            </div>
-                        </div>
+                        <UnitSection key={unit.id} unit={unit} unitIndex={unitIndex} />
                     ))}
                 </div>
 
