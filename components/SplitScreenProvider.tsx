@@ -3,6 +3,14 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { getYouTubeEmbedUrl, isEmbeddableContent } from '@/lib/embed-utils';
 
+interface NavigationHistoryEntry {
+    url: string;
+    type: 'iframe' | 'pdf' | 'image' | 'text';
+    textContent?: string;
+    textTitle?: string;
+    isReaderMode?: boolean;
+}
+
 interface SplitScreenContextType {
     splitScreenEnabled: boolean;
     setSplitScreenEnabled: (enabled: boolean) => void;
@@ -16,6 +24,10 @@ interface SplitScreenContextType {
     switchToReaderMode: () => void;
     closeSplitScreen: () => void;
     isDesktop: boolean;
+    canGoBack: boolean;
+    canGoForward: boolean;
+    goBack: () => void;
+    goForward: () => void;
 }
 
 const SplitScreenContext = createContext<SplitScreenContextType | null>(null);
@@ -37,6 +49,14 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
     const [contentType, setContentType] = useState<'iframe' | 'pdf' | 'image' | 'text' | null>(null);
     // Always start with false to prevent hydration mismatch
     const [isDesktop, setIsDesktop] = useState(false);
+
+    // Navigation history
+    const [navigationHistory, setNavigationHistory] = useState<NavigationHistoryEntry[]>([]);
+    const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
+
+    // Computed navigation state
+    const canGoBack = currentHistoryIndex > 0;
+    const canGoForward = currentHistoryIndex < navigationHistory.length - 1;
 
     // Set initial value and check if desktop on resize
     useEffect(() => {
@@ -60,6 +80,57 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             setTextContent(null);
             setTextTitle(null);
             setContentType(null);
+            setNavigationHistory([]);
+            setCurrentHistoryIndex(-1);
+        }
+    };
+
+    // Helper function to add entry to navigation history
+    const addToHistory = (entry: NavigationHistoryEntry) => {
+        setNavigationHistory(prev => {
+            // Remove any forward history if we're not at the end
+            const newHistory = prev.slice(0, currentHistoryIndex + 1);
+            return [...newHistory, entry];
+        });
+        setCurrentHistoryIndex(prev => prev + 1);
+    };
+
+    // Helper function to load a history entry
+    const loadHistoryEntry = (entry: NavigationHistoryEntry) => {
+        if (entry.type === 'text' && entry.textContent && entry.textTitle) {
+            setTextContent(entry.textContent);
+            setTextTitle(entry.textTitle);
+            setIframeUrl(null);
+            setReaderUrl(null);
+            setContentType('text');
+        } else {
+            setTextContent(null);
+            setTextTitle(null);
+            if (entry.isReaderMode) {
+                setReaderUrl(entry.url);
+                setIframeUrl(null);
+                setContentType(null);
+            } else {
+                setIframeUrl(entry.url);
+                setReaderUrl(null);
+                setContentType(entry.type);
+            }
+        }
+    };
+
+    const goBack = () => {
+        if (canGoBack) {
+            const newIndex = currentHistoryIndex - 1;
+            setCurrentHistoryIndex(newIndex);
+            loadHistoryEntry(navigationHistory[newIndex]);
+        }
+    };
+
+    const goForward = () => {
+        if (canGoForward) {
+            const newIndex = currentHistoryIndex + 1;
+            setCurrentHistoryIndex(newIndex);
+            loadHistoryEntry(navigationHistory[newIndex]);
         }
     };
 
@@ -74,6 +145,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
                 setReaderUrl(null);
                 setIframeUrl(url);
                 setContentType(type);
+                addToHistory({ url, type, isReaderMode: false });
                 return;
             }
 
@@ -84,6 +156,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
                 setReaderUrl(null);
                 setIframeUrl(youtubeEmbedUrl);
                 setContentType('iframe');
+                addToHistory({ url: youtubeEmbedUrl, type: 'iframe', isReaderMode: false });
                 return;
             }
 
@@ -92,6 +165,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
                 setReaderUrl(null);
                 setIframeUrl(url);
                 setContentType('iframe');
+                addToHistory({ url, type: 'iframe', isReaderMode: false });
                 return;
             }
 
@@ -105,17 +179,20 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
                     setIframeUrl(null);
                     setReaderUrl(url);
                     setContentType(null);
+                    addToHistory({ url, type: 'iframe', isReaderMode: true });
                 } else {
                     // Can embed or unknown - try iframe
                     setReaderUrl(null);
                     setIframeUrl(url);
                     setContentType('iframe');
+                    addToHistory({ url, type: 'iframe', isReaderMode: false });
                 }
             } catch (error) {
                 // If check fails, default to trying iframe
                 setReaderUrl(null);
                 setIframeUrl(url);
                 setContentType('iframe');
+                addToHistory({ url, type: 'iframe', isReaderMode: false });
             }
         } else {
             window.open(url, '_blank');
@@ -126,6 +203,15 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         if (iframeUrl) {
             setReaderUrl(iframeUrl);
             setIframeUrl(null);
+            // Update the current history entry to reflect reader mode
+            if (currentHistoryIndex >= 0 && navigationHistory[currentHistoryIndex]) {
+                const updatedHistory = [...navigationHistory];
+                updatedHistory[currentHistoryIndex] = {
+                    ...updatedHistory[currentHistoryIndex],
+                    isReaderMode: true
+                };
+                setNavigationHistory(updatedHistory);
+            }
         }
     };
 
@@ -136,6 +222,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         setTextContent(content);
         setTextTitle(title);
         setContentType('text');
+        addToHistory({ url: '', type: 'text', textContent: content, textTitle: title, isReaderMode: false });
     };
 
     const closeSplitScreen = () => {
@@ -144,6 +231,8 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         setTextContent(null);
         setTextTitle(null);
         setContentType(null);
+        setNavigationHistory([]);
+        setCurrentHistoryIndex(-1);
     };
 
     return (
@@ -160,6 +249,10 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             switchToReaderMode,
             closeSplitScreen,
             isDesktop,
+            canGoBack,
+            canGoForward,
+            goBack,
+            goForward,
         }}>
             {children}
         </SplitScreenContext.Provider>

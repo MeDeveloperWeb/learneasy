@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import "katex/dist/katex.min.css";
+import { useSplitScreen } from "./SplitScreenProvider";
 
 interface Article {
   title: string;
@@ -18,6 +19,7 @@ interface ReaderViewProps {
 }
 
 export function ReaderView({ url, onClose }: ReaderViewProps) {
+  const { canGoBack, canGoForward, goBack, goForward, openInSplitScreen, splitScreenEnabled } = useSplitScreen();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +80,53 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
       renderMath();
     }
   }, [article]);
+
+  // Remove target="_blank" from all links and intercept clicks to open in split screen
+  useEffect(() => {
+    const contentElement = contentRef.current;
+    if (!contentElement) return;
+
+    // Remove target="_blank" from all links in the reader content
+    const links = contentElement.querySelectorAll('a[target="_blank"]');
+    links.forEach((link) => {
+      link.removeAttribute('target');
+    });
+
+    const handleLinkClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const link = target.closest('a');
+
+      if (link && link.href) {
+        // Only intercept if it's a regular navigation link (not anchor links)
+        try {
+          const linkUrl = new URL(link.href);
+          const currentUrl = new URL(window.location.href);
+
+          // Don't intercept anchor links on the same page
+          if (linkUrl.pathname === currentUrl.pathname && linkUrl.hash) {
+            return;
+          }
+
+          // Intercept the click and prevent default behavior
+          event.preventDefault();
+          event.stopPropagation();
+
+          // Open in split screen
+          openInSplitScreen(link.href);
+        } catch (e) {
+          // If URL parsing fails, let it navigate normally
+          console.error('Error parsing URL:', e);
+        }
+      }
+    };
+
+    // Use capture phase to intercept before any other handlers
+    contentElement.addEventListener('click', handleLinkClick, true);
+
+    return () => {
+      contentElement.removeEventListener('click', handleLinkClick, true);
+    };
+  }, [article, openInSplitScreen]);
 
   if (loading) {
     return (
@@ -279,14 +328,45 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
       }} />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
+        {/* Left side: Back and Forward buttons */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            type="button"
+            onClick={goBack}
+            disabled={!canGoBack}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            aria-label="Go back"
+            title="Go back"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={goForward}
+            disabled={!canGoForward}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            aria-label="Go forward"
+            title="Go forward"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Center: Reader Mode label */}
+        <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
           <span>Reader Mode</span>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Right side: View original and Close buttons */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           <a
             href={url}
             target="_blank"
@@ -300,6 +380,7 @@ export function ReaderView({ url, onClose }: ReaderViewProps) {
             </svg>
           </a>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Close reader view"

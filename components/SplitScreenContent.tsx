@@ -3,6 +3,7 @@
 import { ReaderView } from "./ReaderView";
 import { RichTextViewer } from "./RichTextViewer";
 import { useState, useEffect, useRef } from "react";
+import { useSplitScreen } from "./SplitScreenProvider";
 
 interface SplitScreenContentProps {
   contentType: 'iframe' | 'pdf' | 'image' | 'text' | null;
@@ -25,6 +26,7 @@ export function SplitScreenContent({
   switchToReaderMode,
   isMobile = false,
 }: SplitScreenContentProps) {
+  const { canGoBack, canGoForward, goBack, goForward } = useSplitScreen();
   const [iframeError, setIframeError] = useState(false);
   const [showReaderButton, setShowReaderButton] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -77,14 +79,46 @@ export function SplitScreenContent({
       <div className="relative h-full bg-white flex flex-col">
         {/* Top bar with title and close button */}
         <div className="flex-shrink-0 flex items-center justify-between p-4 bg-white border-b border-gray-200">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Left side: Back and Forward buttons */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={!canGoBack}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Go back"
+              title="Go back"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={goForward}
+              disabled={!canGoForward}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Go forward"
+              title="Go forward"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Center: Title with icon */}
+          <div className="flex items-center gap-3 flex-1 min-w-0 justify-center">
             <svg className="w-5 h-5 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <h2 className="font-semibold text-gray-900 truncate">{textTitle}</h2>
           </div>
+
+          {/* Right side: Close button */}
           <button
+            type="button"
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
             aria-label="Close split screen"
@@ -114,22 +148,70 @@ export function SplitScreenContent({
       <div className="relative h-full bg-gray-50">
         {/* Top bar with controls */}
         <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-2 bg-white/90 backdrop-blur-sm border-b border-gray-200">
-          {showReaderButton && !iframeError && contentType === 'iframe' && (
+          {/* Left side: Back and Forward buttons */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
-              onClick={switchToReaderMode}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium"
+              type="button"
+              onClick={goBack}
+              disabled={!canGoBack}
+              className="p-2 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Go back"
+              title="Go back"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Reader Mode
             </button>
-          )}
-          <div className="flex-1" />
+            <button
+              type="button"
+              onClick={goForward}
+              disabled={!canGoForward}
+              className="p-2 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Go forward"
+              title="Go forward"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Center: Reader mode and View original buttons */}
+          <div className="flex-1 flex justify-center items-center gap-2">
+            {showReaderButton && !iframeError && contentType === 'iframe' && (
+              <button
+                type="button"
+                onClick={switchToReaderMode}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Reader Mode
+              </button>
+            )}
+            {!iframeError && iframeUrl && (
+              <a
+                href={iframeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-purple-600 hover:text-purple-700 font-medium hover:bg-purple-50 rounded-lg transition-colors"
+              >
+                View original
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            )}
+          </div>
+
+          {/* Right side: Close button */}
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-200 rounded-lg transition-colors flex-shrink-0"
             aria-label="Close split screen"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
