@@ -34,6 +34,7 @@ model Topic {
   unit      Unit       @relation(fields: [unitId], references: [id])
   unitId    String
   resources Resource[]
+  order     Int        @default(0)
   createdAt DateTime   @default(now())
 }
 

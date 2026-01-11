@@ -17,7 +17,7 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
                 orderBy: { createdAt: 'asc' },
                 include: {
                     topics: {
-                        orderBy: { createdAt: 'asc' },
+                        orderBy: { order: 'asc' },
                         include: { _count: { select: { resources: true } } }
                     }
                 }

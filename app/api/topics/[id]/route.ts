@@ -13,15 +13,20 @@ export async function PUT(
     try {
         const { id } = await params;
         const body = await request.json();
-        const { title } = body;
+        const { title, order } = body;
 
-        if (!title) {
-            return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+        // Build update data object
+        const updateData: { title?: string; order?: number } = {};
+        if (title !== undefined) updateData.title = title;
+        if (order !== undefined) updateData.order = order;
+
+        if (Object.keys(updateData).length === 0) {
+            return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
         }
 
         const topic = await prisma.topic.update({
             where: { id },
-            data: { title },
+            data: updateData,
         });
 
         return NextResponse.json(topic);

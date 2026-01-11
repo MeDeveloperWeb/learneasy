@@ -32,7 +32,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { title, unitId } = body;
+        const { title, unitId, order } = body;
 
         if (!title || !unitId) {
             return NextResponse.json({ error: 'Title and unitId are required' }, { status: 400 });
@@ -55,10 +55,25 @@ export async function POST(request: Request) {
             }
         }
 
+        // Use provided order or calculate new order
+        let newOrder: number;
+        if (order !== undefined) {
+            newOrder = order;
+        } else {
+            // Get max order in this unit to calculate new order
+            const maxOrderTopic = await prisma.topic.findFirst({
+                where: { unitId },
+                orderBy: { order: 'desc' },
+                select: { order: true }
+            });
+            newOrder = (maxOrderTopic?.order || 0) + 1024;
+        }
+
         const topic = await prisma.topic.create({
             data: {
                 title,
-                unitId
+                unitId,
+                order: newOrder
             },
         });
 

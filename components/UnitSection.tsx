@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAdmin } from './AdminProvider';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -23,6 +23,7 @@ interface UnitSectionProps {
 interface NewTopicEntry {
     id: string;
     title: string;
+    insertAfterIndex?: number; // undefined means add at end
 }
 
 export function UnitSection({ unit, unitIndex }: UnitSectionProps) {
@@ -31,13 +32,54 @@ export function UnitSection({ unit, unitIndex }: UnitSectionProps) {
     const [newEntries, setNewEntries] = useState<NewTopicEntry[]>([]);
     const [editedTopics, setEditedTopics] = useState<Map<string, string>>(new Map());
     const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
+    const [localTopics, setLocalTopics] = useState<Topic[]>(unit.topics);
+    const [hasReordered, setHasReordered] = useState(false);
+
+    // Sync localTopics when unit.topics changes (after save/refresh)
+    useEffect(() => {
+        setLocalTopics(unit.topics);
+    }, [unit.topics]);
 
     const handleAddNew = () => {
         const newEntry: NewTopicEntry = {
             id: `new-${Date.now()}`,
             title: '',
+            insertAfterIndex: undefined, // Add at end
         };
         setNewEntries([...newEntries, newEntry]);
+    };
+
+    const handleInsertAfter = (index: number) => {
+        const newEntry: NewTopicEntry = {
+            id: `new-${Date.now()}`,
+            title: '',
+            insertAfterIndex: index,
+        };
+        setNewEntries([...newEntries, newEntry]);
+    };
+
+    // Build merged display array with new entries in correct positions
+    const getMergedTopics = () => {
+        const merged: Array<{ type: 'existing' | 'new'; data: Topic | NewTopicEntry; originalIndex?: number }> = [];
+
+        // Add all existing topics with their new entries
+        localTopics.forEach((topic, index) => {
+            merged.push({ type: 'existing', data: topic, originalIndex: index });
+
+            // Add any new entries that should come after this topic
+            const entriesAfterThis = newEntries.filter(e => e.insertAfterIndex === index);
+            entriesAfterThis.forEach(entry => {
+                merged.push({ type: 'new', data: entry });
+            });
+        });
+
+        // Add entries that should go at the end
+        const entriesAtEnd = newEntries.filter(e => e.insertAfterIndex === undefined);
+        entriesAtEnd.forEach(entry => {
+            merged.push({ type: 'new', data: entry });
+        });
+
+        return merged;
     };
 
     const handleSaveAll = async () => {
@@ -46,42 +88,80 @@ export function UnitSection({ unit, unitIndex }: UnitSectionProps) {
             .map(([id, title]) => ({ id, title }))
             .filter(e => e.title.trim());
 
-        if (validNewEntries.length === 0 && editedEntries.length === 0) return;
+        if (validNewEntries.length === 0 && editedEntries.length === 0 && !hasReordered) return;
 
         const allIds = [...validNewEntries.map(e => e.id), ...editedEntries.map(e => e.id)];
+        if (hasReordered || validNewEntries.length > 0) {
+            allIds.push(...localTopics.map(t => t.id));
+        }
         setSavingIds(new Set(allIds));
 
         try {
-            // Create new topics
-            const createPromises = validNewEntries.map(entry =>
-                fetch('/api/topics', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-admin-code': adminCode || '',
-                    },
-                    body: JSON.stringify({ title: entry.title, unitId: unit.id }),
-                })
-            );
+            const promises: Promise<Response>[] = [];
 
-            // Update edited topics
-            const updatePromises = editedEntries.map(entry =>
-                fetch(`/api/topics/${entry.id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-admin-code': adminCode || '',
-                    },
-                    body: JSON.stringify({ title: entry.title }),
-                })
-            );
+            // When we have new entries or reordering, we need to recalculate all orders
+            if (validNewEntries.length > 0 || hasReordered) {
+                const merged = getMergedTopics();
 
-            const results = await Promise.all([...createPromises, ...updatePromises]);
+                merged.forEach((item, index) => {
+                    const newOrder = (index + 1) * 1024;
+
+                    if (item.type === 'new') {
+                        const entry = item.data as NewTopicEntry;
+                        if (entry.title.trim()) {
+                            promises.push(
+                                fetch('/api/topics', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'x-admin-code': adminCode || '',
+                                    },
+                                    body: JSON.stringify({
+                                        title: entry.title,
+                                        unitId: unit.id,
+                                        order: newOrder
+                                    }),
+                                })
+                            );
+                        }
+                    } else {
+                        const topic = item.data as Topic;
+                        // Update order for existing topics
+                        promises.push(
+                            fetch(`/api/topics/${topic.id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'x-admin-code': adminCode || '',
+                                },
+                                body: JSON.stringify({ order: newOrder }),
+                            })
+                        );
+                    }
+                });
+            }
+
+            // Update edited topic titles (separate from order updates)
+            editedEntries.forEach(entry => {
+                promises.push(
+                    fetch(`/api/topics/${entry.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-admin-code': adminCode || '',
+                        },
+                        body: JSON.stringify({ title: entry.title }),
+                    })
+                );
+            });
+
+            const results = await Promise.all(promises);
             const allSuccess = results.every(res => res.ok);
 
             if (allSuccess) {
                 setNewEntries([]);
                 setEditedTopics(new Map());
+                setHasReordered(false);
                 router.refresh();
             } else {
                 alert('Failed to save some topics');
@@ -125,6 +205,23 @@ export function UnitSection({ unit, unitIndex }: UnitSectionProps) {
         } catch (error) {
             alert('Error deleting topic');
         }
+    };
+
+    const handleReorder = (topicId: string, direction: 'up' | 'down') => {
+        const currentIndex = localTopics.findIndex(t => t.id === topicId);
+        if (currentIndex === -1) return;
+
+        if (direction === 'up' && currentIndex === 0) return;
+        if (direction === 'down' && currentIndex === localTopics.length - 1) return;
+
+        const newTopics = [...localTopics];
+        const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+        // Swap
+        [newTopics[currentIndex], newTopics[targetIndex]] = [newTopics[targetIndex], newTopics[currentIndex]];
+
+        setLocalTopics(newTopics);
+        setHasReordered(true);
     };
 
     const handleCancel = (entryId: string) => {
@@ -181,9 +278,41 @@ export function UnitSection({ unit, unitIndex }: UnitSectionProps) {
             {/* Topics List */}
             <div className="p-6">
                 <ul className="space-y-2">
-                    {unit.topics.map(topic => {
+                    {getMergedTopics().map((item, displayIndex) => {
+                        if (item.type === 'new') {
+                            const entry = item.data as NewTopicEntry;
+                            return (
+                                <li key={entry.id} className="flex items-center gap-3 py-2 px-4 bg-gray-50 rounded-xl animate-fade-in">
+                                    <input
+                                        type="text"
+                                        value={entry.title}
+                                        onChange={(e) => handleTitleChange(entry.id, e.target.value)}
+                                        placeholder="Enter topic name..."
+                                        className="input-modern flex-1 py-2 text-sm"
+                                        autoFocus
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Escape') handleCancel(entry.id);
+                                        }}
+                                    />
+                                    <button
+                                        onClick={() => handleCancel(entry.id)}
+                                        className="text-gray-400 hover:text-red-500 transition-colors"
+                                        title="Remove"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </li>
+                            );
+                        }
+
+                        const topic = item.data as Topic;
+                        const originalIndex = item.originalIndex!;
                         const isEditing = editedTopics.has(topic.id);
                         const editedTitle = editedTopics.get(topic.id) || topic.title;
+                        const isFirst = originalIndex === 0;
+                        const isLast = originalIndex === localTopics.length - 1;
 
                         if (isEditing) {
                             return (
@@ -234,7 +363,41 @@ export function UnitSection({ unit, unitIndex }: UnitSectionProps) {
 
                                 <div className="flex items-center gap-2">
                                     {isAdmin && (
-                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={() => handleInsertAfter(originalIndex)}
+                                                className="text-gray-400 hover:text-green-500
+                                                         px-1.5 py-1 rounded hover:bg-green-50 transition-all"
+                                                title="Insert topic after this"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                                </svg>
+                                            </button>
+                                            <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                            <button
+                                                onClick={() => handleReorder(topic.id, 'up')}
+                                                disabled={isFirst}
+                                                className="text-gray-400 hover:text-purple-500 disabled:opacity-30 disabled:cursor-not-allowed
+                                                         px-1.5 py-1 rounded hover:bg-purple-50 transition-all"
+                                                title="Move up"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                onClick={() => handleReorder(topic.id, 'down')}
+                                                disabled={isLast}
+                                                className="text-gray-400 hover:text-purple-500 disabled:opacity-30 disabled:cursor-not-allowed
+                                                         px-1.5 py-1 rounded hover:bg-purple-50 transition-all"
+                                                title="Move down"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+                                            <div className="w-px h-4 bg-gray-300 mx-1"></div>
                                             <button
                                                 onClick={() => handleStartEdit(topic.id, topic.title)}
                                                 className="text-xs text-gray-400 hover:text-purple-500
@@ -264,41 +427,17 @@ export function UnitSection({ unit, unitIndex }: UnitSectionProps) {
                             </li>
                         );
                     })}
-                    {newEntries.map(entry => (
-                        <li key={entry.id} className="flex items-center gap-3 py-2 px-4 bg-gray-50 rounded-xl animate-fade-in">
-                            <input
-                                type="text"
-                                value={entry.title}
-                                onChange={(e) => handleTitleChange(entry.id, e.target.value)}
-                                placeholder="Enter topic name..."
-                                className="input-modern flex-1 py-2 text-sm"
-                                autoFocus
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Escape') handleCancel(entry.id);
-                                }}
-                            />
-                            <button
-                                onClick={() => handleCancel(entry.id)}
-                                className="text-gray-400 hover:text-red-500 transition-colors"
-                                title="Remove"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </li>
-                    ))}
                 </ul>
-                {unit.topics.length === 0 && newEntries.length === 0 && (
+                {localTopics.length === 0 && newEntries.length === 0 && (
                     <p className="text-gray-400 text-sm text-center py-4">
                         No topics in this unit yet.
                     </p>
                 )}
-                {(newEntries.length > 0 || editedTopics.size > 0) && (
+                {(newEntries.length > 0 || editedTopics.size > 0 || hasReordered) && (
                     <div className="mt-4 flex gap-2">
                         <button
                             onClick={handleSaveAll}
-                            disabled={savingIds.size > 0 || (newEntries.every(e => !e.title.trim()) && editedTopics.size === 0)}
+                            disabled={savingIds.size > 0 || (newEntries.every(e => !e.title.trim()) && editedTopics.size === 0 && !hasReordered)}
                             className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg
                                      hover:bg-green-600 transition-colors font-medium disabled:opacity-50
                                      disabled:cursor-not-allowed text-sm"
@@ -316,7 +455,7 @@ export function UnitSection({ unit, unitIndex }: UnitSectionProps) {
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    Save All ({newEntries.filter(e => e.title.trim()).length + editedTopics.size})
+                                    Save All{hasReordered && ' + Reorder'}
                                 </>
                             )}
                         </button>
@@ -324,6 +463,8 @@ export function UnitSection({ unit, unitIndex }: UnitSectionProps) {
                             onClick={() => {
                                 setNewEntries([]);
                                 setEditedTopics(new Map());
+                                setLocalTopics(unit.topics);
+                                setHasReordered(false);
                             }}
                             className="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg
                                      hover:bg-gray-300 transition-colors font-medium text-sm"
