@@ -95,25 +95,18 @@ export function Header() {
                     </kbd>
                 </button>
 
-                {/* Split Screen Toggle - Desktop only */}
-                {mounted && isDesktop && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
-                        <span className="text-sm text-gray-700 font-medium hidden md:inline">Split Screen</span>
-                        <button
-                            onClick={() => setSplitScreenEnabled(!splitScreenEnabled)}
-                            className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0
-                                       ${splitScreenEnabled
-                                    ? 'bg-gradient-to-r from-purple-500 to-teal-400'
-                                    : 'bg-gray-300'}`}
-                            title={splitScreenEnabled ? 'Disable split screen' : 'Enable split screen'}
-                        >
-                            <div
-                                className={`absolute top-1 w-4 h-4 bg-white rounded-full
-                                           shadow-sm transition-transform
-                                           ${splitScreenEnabled ? 'translate-x-6' : 'translate-x-1'}`}
-                            />
-                        </button>
-                    </div>
+                {/* Split Screen Toggle - Always visible */}
+                {mounted && (
+                    <button
+                        onClick={() => setSplitScreenEnabled(!splitScreenEnabled)}
+                        className={`px-3 py-1.5 rounded-lg border transition-colors
+                                   ${splitScreenEnabled
+                                ? 'bg-gradient-to-r from-purple-500 to-teal-400 border-purple-400 text-white'
+                                : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'}`}
+                        title={splitScreenEnabled ? 'Disable split screen' : 'Enable split screen'}
+                    >
+                        <span className="text-xs md:text-sm font-medium">Split View</span>
+                    </button>
                 )}
 
                 {/* User Section */}
@@ -148,36 +141,6 @@ export function Header() {
                             />
                             <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl
                                            border border-gray-100 p-2 z-50 animate-slide-down">
-                                {/* Mobile Split Screen Toggle (only on mobile) */}
-                                {mounted && !isDesktop && (
-                                    <>
-                                        <button
-                                            onClick={() => {
-                                                setSplitScreenEnabled(!splitScreenEnabled);
-                                                setShowUserMenu(false);
-                                            }}
-                                            className="w-full flex items-center justify-between px-3 py-2
-                                                       text-sm text-gray-700 hover:bg-gray-50 rounded-lg
-                                                       transition-colors"
-                                        >
-                                            <span className="font-medium">Split Screen</span>
-                                            <div
-                                                className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0
-                                                           ${splitScreenEnabled
-                                                        ? 'bg-gradient-to-r from-purple-500 to-teal-400'
-                                                        : 'bg-gray-300'}`}
-                                            >
-                                                <div
-                                                    className={`absolute top-1 w-4 h-4 bg-white rounded-full
-                                                               shadow-sm transition-transform
-                                                               ${splitScreenEnabled ? 'translate-x-6' : 'translate-x-1'}`}
-                                                />
-                                            </div>
-                                        </button>
-                                        <div className="border-t border-gray-100 my-2" />
-                                    </>
-                                )}
-
                                 {username ? (
                                     <>
                                         <div className="px-3 py-2 border-b border-gray-100 mb-2">

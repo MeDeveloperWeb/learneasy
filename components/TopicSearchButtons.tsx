@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useSplitScreen } from '@/components/SplitScreenProvider';
 
 interface TopicSearchButtonsProps {
@@ -8,6 +9,11 @@ interface TopicSearchButtonsProps {
 
 export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
     const { openInSplitScreen, splitScreenEnabled } = useSplitScreen();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleSearchInPanel = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -39,7 +45,7 @@ export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
             </a>
 
             {/* Search in Panel Button - 3/4 width - Only show when split screen is enabled */}
-            {splitScreenEnabled && (
+            {mounted && splitScreenEnabled && (
                 <button
                     onClick={handleSearchInPanel}
                     className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500 to-teal-400

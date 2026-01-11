@@ -11,7 +11,12 @@ export function AddResourceButton({ topicId }: { topicId: string }) {
     const [isOpen, setIsOpen] = useState(false);
     const [contentType, setContentType] = useState<ContentType>('LINK');
     const [initialUrl, setInitialUrl] = useState<string>('');
-    const { pendingResourceUrl, setPendingResourceUrl } = useSplitScreen();
+    const [mounted, setMounted] = useState(false);
+    const { pendingResourceUrl, setPendingResourceUrl, splitScreenEnabled, iframeUrl, readerUrl, textContent, isDesktop } = useSplitScreen();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Listen for pending resource URL to auto-open modal with pre-filled URL
     useEffect(() => {
@@ -31,19 +36,27 @@ export function AddResourceButton({ topicId }: { topicId: string }) {
         setTimeout(() => setContentType('LINK'), 300);
     };
 
+    // Check if split screen is showing content on desktop
+    const hasContent = iframeUrl || readerUrl || textContent;
+    const showSplitScreen = mounted && splitScreenEnabled && hasContent && isDesktop;
+
+    // Use fixed positioning when split screen is off, absolute when it's on
+    // This ensures the button stays in the left panel when split screen is active
+    const positionClass = showSplitScreen ? 'absolute' : 'fixed';
+
     return (
         <>
-            {/* Floating Action Button - positioned within parent container */}
+            {/* Floating Action Button - fixed to bottom-right of left panel */}
             <button
                 onClick={() => setIsOpen(true)}
-                className="absolute bottom-8 right-6 w-14 h-14 z-40
+                className={`${positionClass} bottom-8 right-6 w-14 h-14 z-40
                           bg-gradient-to-br from-purple-500 to-teal-400
                           text-white rounded-2xl shadow-lg
                           shadow-purple-500/30 hover:shadow-purple-500/50
                           hover:scale-110 active:scale-100
                           transition-all duration-200
                           flex items-center justify-center
-                          group animate-pulse-glow"
+                          group animate-pulse-glow`}
                 aria-label="Add Resource"
             >
                 <svg

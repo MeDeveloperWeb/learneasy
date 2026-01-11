@@ -45,7 +45,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
 
     return (
         <TopicProvider topicId={id} resourceUrls={resourceUrls}>
-            <div className="min-h-screen pb-20 relative">
+            <div className="min-h-screen pb-20">
                 <Header />
 
             <main className="max-w-7xl mx-auto px-6 py-12">
