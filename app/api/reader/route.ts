@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Readability } from '@mozilla/readability';
+import { processContent } from '@/lib/content-processors';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -89,13 +90,8 @@ export async function GET(request: NextRequest) {
               }
 
               if (content && content.length > 100) {
-                // Convert GeeksforGeeks custom math tags to KaTeX delimiters
-                content = content
-                  .replace(/<gfg-tex>/g, '$$')
-                  .replace(/<\/gfg-tex>/g, '$$')
-                  .replace(/&amp;/g, '&')
-                  .replace(/&lt;/g, '<')
-                  .replace(/&gt;/g, '>');
+                // Process content with website-specific transformations
+                content = processContent(content, targetUrl);
 
                 return NextResponse.json({
                   title: postTitle || postData?.title || document.querySelector('title')?.textContent || 'Article',
@@ -112,22 +108,19 @@ export async function GET(request: NextRequest) {
             // Fallback for other Next.js sites
             const articleData = pageProps.article || pageProps.data || pageProps.post || pageProps.content;
             if (articleData) {
-              const fallbackArticle = {
-                title: articleData.title || articleData.heading || document.querySelector('title')?.textContent || 'Article',
-                content: articleData.content || articleData.body || articleData.html || '',
-                excerpt: articleData.excerpt || articleData.description || '',
-                byline: articleData.author || articleData.byline || '',
-                siteName: new URL(targetUrl).hostname,
-              };
+              let content = articleData.content || articleData.body || articleData.html || '';
 
-              if (fallbackArticle.content && fallbackArticle.content.length > 100) {
+              if (content && content.length > 100) {
+                // Process content with website-specific transformations
+                content = processContent(content, targetUrl);
+
                 return NextResponse.json({
-                  title: fallbackArticle.title,
-                  byline: fallbackArticle.byline,
-                  content: fallbackArticle.content,
-                  textContent: fallbackArticle.content.replace(/<[^>]*>/g, ''),
-                  excerpt: fallbackArticle.excerpt,
-                  siteName: fallbackArticle.siteName,
+                  title: articleData.title || articleData.heading || document.querySelector('title')?.textContent || 'Article',
+                  byline: articleData.author || articleData.byline || '',
+                  content: content,
+                  textContent: content.replace(/<[^>]*>/g, ''),
+                  excerpt: articleData.excerpt || articleData.description || '',
+                  siteName: new URL(targetUrl).hostname,
                   sourceUrl: targetUrl,
                 });
               }
@@ -153,10 +146,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Process content with website-specific transformations
+    const processedContent = processContent(article.content, targetUrl);
+
     return NextResponse.json({
       title: article.title,
       byline: article.byline,
-      content: article.content,
+      content: processedContent,
       textContent: article.textContent,
       excerpt: article.excerpt,
       siteName: article.siteName,
