@@ -539,3 +539,156 @@ pre[class*="language-"] code {
 .ProseMirror mark[style*="background"] {
   /* Inline background styles for highlights */
 }
+
+/* =========================================================================
+   DARK MODE
+   Activated by the `dark` class on <html> (see ThemeProvider + inline script).
+   Strategy: flip the semantic CSS variables (drives the custom .btn-/.input-/
+   scrollbar/glass classes) AND remap the specific hardcoded Tailwind neutral
+   utility classes the app actually uses. No per-component edits needed.
+   These rules live outside @layer, so they win over Tailwind utilities.
+   ========================================================================= */
+
+.dark {
+  /* Inverted surface scale (50 = darkest bg ... 900 = lightest text) */
+  --surface-50: #1b1b1f;
+  --surface-100: #26262b;
+  --surface-200: #2f2f35;
+  --surface-300: #3a3a41;
+  --surface-400: #52525b;
+  --surface-700: #d4d4d8;
+  --surface-800: #e4e4e7;
+  --surface-900: #f4f4f5;
+
+  --background: #161619;
+  --foreground: #e4e4e7;
+  --card-bg: #1e1e22;
+  --border: #34343b;
+}
+
+.dark body {
+  background: linear-gradient(135deg, #161619 0%, #1b1726 50%, #161619 100%);
+  color: var(--foreground);
+}
+
+/* Header / frosted panels */
+.dark .glass {
+  background: rgba(24, 24, 27, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ---- Backgrounds ---- */
+.dark .bg-white { background-color: #1e1e22; }
+.dark .bg-gray-50 { background-color: #1b1b1f; }
+.dark .bg-gray-100 { background-color: #26262b; }
+.dark .bg-gray-200 { background-color: #2f2f35; }
+.dark .bg-gray-300 { background-color: #3a3a41; }
+/* bg-black + code blocks are intentionally left dark */
+
+/* ---- Text ---- */
+.dark .text-gray-900 { color: #f4f4f5; }
+.dark .text-gray-800 { color: #ececee; }
+.dark .text-gray-700 { color: #dcdce0; }
+.dark .text-gray-600 { color: #c6c6cd; }
+.dark .text-gray-500 { color: #a6a6af; }
+.dark .text-gray-400 { color: #8b8b95; }
+.dark .text-gray-300 { color: #74747e; }
+/* text-white stays white (used on gradient buttons/badges) */
+
+/* ---- Borders ---- */
+.dark .border-gray-100 { border-color: #2a2a30; }
+.dark .border-gray-200 { border-color: #34343b; }
+.dark .border-gray-300 { border-color: #3f3f46; }
+
+/* ---- Hover states ---- */
+.dark .hover\:bg-gray-50:hover { background-color: #232328; }
+.dark .hover\:bg-gray-100:hover { background-color: #2c2c32; }
+.dark .hover\:bg-gray-200:hover { background-color: #353540; }
+.dark .hover\:bg-gray-300:hover { background-color: #3f3f48; }
+.dark .hover\:text-gray-700:hover { color: #e4e4e7; }
+.dark .hover\:text-gray-800:hover { color: #f4f4f5; }
+
+/* ---- Gradient stops on skeleton/placeholder loaders ---- */
+.dark .from-gray-100 { --tw-gradient-from: #26262b; }
+.dark .from-gray-200 { --tw-gradient-from: #2f2f35; }
+.dark .to-gray-50 { --tw-gradient-to: #1b1b1f; }
+.dark .to-gray-100 { --tw-gradient-to: #26262b; }
+
+/* ---- Pastel accent backgrounds (unit headers, hover tints, badges) ----
+   The bright -50/-100 accents glare on dark, so use low-alpha tints that sit
+   subtly over the dark surface while keeping the colour hint. */
+.dark .bg-purple-50 { background-color: rgba(139, 92, 246, 0.12); }
+.dark .bg-purple-100 { background-color: rgba(139, 92, 246, 0.18); }
+.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.12); }
+.dark .bg-yellow-50 { background-color: rgba(234, 179, 8, 0.12); }
+
+/* Unit header gradient bar + row hover gradient */
+.dark .from-purple-50 { --tw-gradient-from: rgba(139, 92, 246, 0.16); }
+.dark .to-teal-50 { --tw-gradient-to: rgba(20, 184, 166, 0.12); }
+.dark .hover\:from-purple-50:hover { --tw-gradient-from: rgba(139, 92, 246, 0.16); }
+
+/* Accent hover backgrounds */
+.dark .hover\:bg-purple-50:hover { background-color: rgba(139, 92, 246, 0.16); }
+.dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.16); }
+.dark .hover\:bg-red-100:hover { background-color: rgba(239, 68, 68, 0.22); }
+.dark .hover\:bg-green-50:hover { background-color: rgba(34, 197, 94, 0.16); }
+.dark .group:hover .group-hover\:bg-purple-100 { background-color: rgba(139, 92, 246, 0.22); }
+
+/* ---- Inputs ---- */
+.dark .input-modern::placeholder { color: #6b6b75; }
+
+/* ---- Tiptap rich text content ---- */
+.dark .ProseMirror { color: #d4d4d8; }
+.dark .ProseMirror h1,
+.dark .ProseMirror h2,
+.dark .ProseMirror h3,
+.dark .ProseMirror h4,
+.dark .ProseMirror h5 { color: #f4f4f5; }
+.dark .ProseMirror h6 { color: #d4d4d8; }
+.dark .ProseMirror strong { color: #ffffff; }
+.dark .ProseMirror code { background: #26262b; color: #c4b5fd; }
+.dark .ProseMirror hr { border-top-color: #34343b; }
+.dark .ProseMirror blockquote { border-left-color: #a78bfa; color: #c6c6cd; }
+
+/* ---- Reader view article content ----
+   ReaderView injects a <style> block with hardcoded light colors; override the
+   text/surfaces here (higher specificity than its `.reader-content` rules). */
+.dark .reader-content { color: #d2d2d8; }
+.dark .reader-content h1,
+.dark .reader-content h2,
+.dark .reader-content h3,
+.dark .reader-content h4,
+.dark .reader-content h5,
+.dark .reader-content h6 { color: #f4f4f5; }
+.dark .reader-content strong,
+.dark .reader-content b { color: #f4f4f5; }
+.dark .reader-content a { color: #c4b5fd; }
+.dark .reader-content blockquote {
+  color: #c0c0c8;
+  background-color: rgba(255, 255, 255, 0.04);
+  border-left-color: #a78bfa;
+}
+.dark .reader-content code {
+  background-color: #26262b;
+  color: #c4b5fd;
+}
+/* .reader-content pre is already dark — left as-is */
+.dark .reader-content hr { border-top-color: #34343b; }
+.dark .reader-content table { border-color: #34343b; }
+.dark .reader-content th,
+.dark .reader-content td { border-color: #34343b; }
+.dark .reader-content th {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #f4f4f5;
+}
+.dark .reader-content tbody tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.03); }
+.dark .reader-content tbody tr:hover { background-color: rgba(255, 255, 255, 0.06); }
+
+/* ---- MUI (mui-tiptap editor toolbar + popovers) ---- */
+.dark .MuiPaper-root { background-color: #1e1e22; color: #d4d4d8; }
+.dark .MuiInputBase-root { color: #d4d4d8; }
+.dark .MuiButtonBase-root { color: #c6c6cd; }
+.dark .MuiButtonBase-root:hover { background-color: #2c2c32; }
+.dark .MuiOutlinedInput-notchedOutline { border-color: #34343b; }
+.dark .MuiDivider-root { border-color: #34343b; }
+.dark .MuiSvgIcon-root { color: inherit; }

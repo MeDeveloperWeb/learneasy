@@ -345,7 +345,7 @@ export function ReaderView({ url, onClose, isMobile = false }: ReaderViewProps) 
             type="button"
             onClick={goBack}
             disabled={!canGoBack}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Go back"
             title="Go back"
           >
@@ -357,7 +357,7 @@ export function ReaderView({ url, onClose, isMobile = false }: ReaderViewProps) 
             type="button"
             onClick={goForward}
             disabled={!canGoForward}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Go forward"
             title="Go forward"
           >
@@ -407,7 +407,7 @@ export function ReaderView({ url, onClose, isMobile = false }: ReaderViewProps) 
           <button
             type="button"
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Close reader view"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

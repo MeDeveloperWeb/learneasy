@@ -99,7 +99,7 @@ export function SplitScreenContent({
               type="button"
               onClick={goBack}
               disabled={!canGoBack}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label="Go back"
               title="Go back"
             >
@@ -111,7 +111,7 @@ export function SplitScreenContent({
               type="button"
               onClick={goForward}
               disabled={!canGoForward}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label="Go forward"
               title="Go forward"
             >
@@ -134,7 +134,7 @@ export function SplitScreenContent({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
             aria-label="Close split screen"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +168,7 @@ export function SplitScreenContent({
               type="button"
               onClick={goBack}
               disabled={!canGoBack}
-              className="p-2 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label="Go back"
               title="Go back"
             >
@@ -180,7 +180,7 @@ export function SplitScreenContent({
               type="button"
               onClick={goForward}
               disabled={!canGoForward}
-              className="p-2 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label="Go forward"
               title="Go forward"
             >
@@ -240,7 +240,7 @@ export function SplitScreenContent({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 hover:bg-gray-200 rounded-lg transition-colors flex-shrink-0"
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg transition-colors flex-shrink-0"
             aria-label="Close split screen"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,7 +253,11 @@ export function SplitScreenContent({
         {contentType === 'pdf' ? (
           <div className="w-full h-full pt-12">
             <embed
-              src={iframeUrl}
+              src={
+                /^https?:\/\//i.test(iframeUrl)
+                  ? `/api/pdf-proxy?url=${encodeURIComponent(iframeUrl)}`
+                  : iframeUrl
+              }
               type="application/pdf"
               className="w-full h-full"
             />

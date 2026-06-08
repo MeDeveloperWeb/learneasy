@@ -87,6 +87,16 @@ export function getYouTubeEmbedUrl(url: string): string | null {
   }
 }
 
+// Check if a URL points to a PDF (ignoring query string / fragment).
+export function isPdfUrl(url: string): boolean {
+  try {
+    const { pathname } = new URL(url, 'http://x');
+    return pathname.toLowerCase().endsWith('.pdf');
+  } catch {
+    return url.toLowerCase().split(/[?#]/)[0].endsWith('.pdf');
+  }
+}
+
 // Check if URL is embeddable content
 // Note: YouTube URLs are NOT included here - they're handled separately by getYouTubeEmbedUrl
 export function isEmbeddableContent(url: string): boolean {
@@ -94,7 +104,7 @@ export function isEmbeddableContent(url: string): boolean {
     const urlLower = url.toLowerCase();
 
     return (
-      urlLower.endsWith('.pdf') ||
+      isPdfUrl(url) ||
       urlLower.includes('vimeo.com') ||
       urlLower.includes('drive.google.com') ||
       urlLower.includes('docs.google.com') ||

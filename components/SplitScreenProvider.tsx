@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getYouTubeEmbedUrl, isEmbeddableContent, extractActualUrl } from '@/lib/embed-utils';
+import { getYouTubeEmbedUrl, isEmbeddableContent, extractActualUrl, isPdfUrl } from '@/lib/embed-utils';
 
 interface NavigationHistoryEntry {
     url: string;
@@ -211,12 +211,15 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             const isEmbeddable = isEmbeddableContent(actualUrl);
             console.log('[openInSplitScreen] Is embeddable content?', isEmbeddable);
             if (isEmbeddable) {
-                console.log('[openInSplitScreen] Using known embeddable content');
+                // PDFs render via our proxied <embed> (contentType 'pdf'); other
+                // embeddable content (vimeo, codepen, ...) stays as an iframe.
+                const embedType = isPdfUrl(actualUrl) ? 'pdf' : 'iframe';
+                console.log('[openInSplitScreen] Using known embeddable content as', embedType);
                 setReaderUrl(null);
                 setIframeUrl(actualUrl);
                 setOriginalUrl(displayOriginalUrl);
-                setContentType('iframe');
-                addToHistory({ url: actualUrl, originalUrl: displayOriginalUrl, type: 'iframe', isReaderMode: false });
+                setContentType(embedType);
+                addToHistory({ url: actualUrl, originalUrl: displayOriginalUrl, type: embedType, isReaderMode: false });
                 return;
             }
 

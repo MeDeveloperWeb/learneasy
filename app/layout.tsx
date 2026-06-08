@@ -5,6 +5,18 @@ import { AdminProvider } from "@/components/AdminProvider";
 import { SplitScreenProvider } from "@/components/SplitScreenProvider";
 import { SplitScreenLayout } from "@/components/SplitScreenLayout";
 import { UserProvider } from "@/components/UserProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
+
+// Runs before paint to set the theme class on <html>, avoiding a light flash.
+const themeInitScript = `
+(function () {
+  try {
+    var t = localStorage.getItem('theme');
+    if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    if (t === 'dark') document.documentElement.classList.add('dark');
+  } catch (e) {}
+})();
+`;
 
 const inter = Inter({
   variable: "--font-inter",
@@ -22,17 +34,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className={`${inter.variable} antialiased min-h-screen`}>
-        <UserProvider>
-          <AdminProvider>
-            <SplitScreenProvider>
-              <SplitScreenLayout>
-                {children}
-              </SplitScreenLayout>
-            </SplitScreenProvider>
-          </AdminProvider>
-        </UserProvider>
+        <ThemeProvider>
+          <UserProvider>
+            <AdminProvider>
+              <SplitScreenProvider>
+                <SplitScreenLayout>
+                  {children}
+                </SplitScreenLayout>
+              </SplitScreenProvider>
+            </AdminProvider>
+          </UserProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
