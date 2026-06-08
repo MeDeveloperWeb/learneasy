@@ -8,6 +8,7 @@ const SYLLABUS_DATA = [
     title: "Artificial Intelligence & Machine Learning",
     code: "MSCTCC201",
     credit: "4",
+    examDate: "2026-06-18",
     units: {
       "Unit I": [
         "History of AI",
@@ -81,6 +82,7 @@ const SYLLABUS_DATA = [
     title: "Data Communication and Computer Networks",
     code: "MSCTCC202",
     credit: "4",
+    examDate: "2026-06-20",
     units: {
       "Unit I": [
         "Data Communications",
@@ -197,6 +199,7 @@ const SYLLABUS_DATA = [
     title: "Advanced Operating System",
     code: "MSCTCC203",
     credit: "4",
+    examDate: "2026-06-22",
     units: {
       "Unit I": [
         "Generations",
@@ -286,6 +289,7 @@ const SYLLABUS_DATA = [
     title: "Information Security",
     code: "MSCTCC204",
     credit: "4",
+    examDate: "2026-06-24",
     units: {
       "Unit I": [
         "Definition of security",
@@ -364,6 +368,7 @@ const SYLLABUS_DATA = [
     title: "Theory of Computation",
     code: "MSCTCC205",
     credit: "2",
+    examDate: "2026-06-27",
     units: {
       "Unit I": [
         "Introduction to theory of computation",
@@ -424,6 +429,7 @@ const SYLLABUS_DATA = [
     title: "Applied Statistics",
     code: "STAT1IER601",
     credit: "2",
+    examDate: "2026-06-16",
     units: {
       "Unit I": [
         "Introduction to Statistics",
@@ -486,6 +492,7 @@ async function main() {
         title: courseData.title,
         code: courseData.code,
         credit: courseData.credit,
+        examDate: courseData.examDate ? new Date(courseData.examDate) : null,
       },
     });
 

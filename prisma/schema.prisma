@@ -3,23 +3,24 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model Paper {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   title     String
   code      String?
   credit    String?
+  examDate  DateTime?
   units     Unit[]
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 }
 
 model Unit {
   id        String   @id @default(uuid())
-  title     String   // e.g. "Unit I"
+  title     String // e.g. "Unit I"
   paperId   String
   paper     Paper    @relation(fields: [paperId], references: [id])
   topics    Topic[]
@@ -52,12 +53,12 @@ model Resource {
   url         String?
   description String?
   imageUrl    String?
-  fileUrl     String?     // Google Drive URL for uploaded files (IMAGE/PDF)
+  fileUrl     String? // Google Drive URL for uploaded files (IMAGE/PDF)
   textContent String?     @db.Text
   topic       Topic       @relation(fields: [topicId], references: [id])
   topicId     String
-  userId      String?     // User ID who created the resource
-  username    String?     // Username who created the resource
+  userId      String? // User ID who created the resource
+  username    String? // Username who created the resource
   createdAt   DateTime    @default(now())
   likesCount  Int         @default(0)
   likes       Like[]
