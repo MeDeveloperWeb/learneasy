@@ -58,7 +58,7 @@ export default async function Home({
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
-              Earliest first
+              Ascending
             </Link>
             <Link
               href="/?sort=desc"
@@ -68,7 +68,7 @@ export default async function Home({
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
-              Latest first
+              Descending
             </Link>
           </div>
         </div>
