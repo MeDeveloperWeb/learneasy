@@ -48,7 +48,7 @@ export default function SearchPage() {
 
         if (!existingScript) {
             const script = document.createElement('script');
-            script.src = 'https://cse.google.com/cse.js?cx=a42530fbfbfbe4e41';
+            script.src = `https://cse.google.com/cse.js?cx=${process.env.NEXT_PUBLIC_GOOGLE_CSE_ID}`;
             script.async = true;
             script.onload = () => {
                 setTimeout(renderSearch, 500);

@@ -43,6 +43,21 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
         .filter(r => r.url) // Only LINK resources
         .map(r => r.url!);
 
+    // Find the next topic in the same unit (same ordering as the paper page)
+    const unitTopics = await prisma.topic.findMany({
+        where: { unitId: topic.unitId },
+        orderBy: [
+            { order: 'asc' },
+            { createdAt: 'asc' },
+        ],
+        select: { id: true, title: true },
+    });
+    const currentIndex = unitTopics.findIndex((t) => t.id === id);
+    const nextTopic =
+        currentIndex >= 0 && currentIndex < unitTopics.length - 1
+            ? unitTopics[currentIndex + 1]
+            : null;
+
     return (
         <TopicProvider topicId={id} resourceUrls={resourceUrls}>
             <div className="min-h-screen pb-20">
@@ -119,6 +134,49 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                         <p className="font-medium">No resources yet</p>
                         <p className="text-sm mt-1">Be the first to add a helpful resource!</p>
                     </div>
+                )}
+
+                {/* Next topic button - inline on desktop */}
+                {nextTopic && (
+                    <div className="mt-12 hidden sm:flex justify-end animate-fade-in">
+                        <Link
+                            href={`/topic/${nextTopic.id}`}
+                            className="group inline-flex items-center gap-3 px-6 py-4 rounded-2xl
+                                       bg-gradient-to-r from-purple-500 to-teal-400 text-white
+                                       font-semibold shadow-sm hover:shadow-lg hover:-translate-y-0.5
+                                       transition-all"
+                        >
+                            <span className="flex flex-col items-end leading-tight">
+                                <span className="text-xs font-normal text-white/80">Next topic</span>
+                                <span className="max-w-[200px] truncate">{nextTopic.title}</span>
+                            </span>
+                            <svg className="w-5 h-5 transition-transform group-hover:translate-x-1"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </Link>
+                    </div>
+                )}
+
+                {/* Next topic button - fixed FAB on mobile (bottom-left) */}
+                {nextTopic && (
+                    <Link
+                        href={`/topic/${nextTopic.id}`}
+                        aria-label="Next topic"
+                        className="sm:hidden fixed bottom-8 left-6 h-14 px-5 z-40
+                                   bg-gradient-to-br from-purple-500 to-teal-400
+                                   text-white font-semibold rounded-2xl shadow-lg
+                                   shadow-purple-500/30 active:scale-100
+                                   transition-all duration-200
+                                   flex items-center gap-2"
+                    >
+                        <span>Next</span>
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
+                                d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </Link>
                 )}
 
                 <AddResourceButton topicId={topic.id} />
