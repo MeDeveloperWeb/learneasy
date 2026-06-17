@@ -53,6 +53,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
         select: { id: true, title: true },
     });
     const currentIndex = unitTopics.findIndex((t) => t.id === id);
+    const prevTopic = currentIndex > 0 ? unitTopics[currentIndex - 1] : null;
     const nextTopic =
         currentIndex >= 0 && currentIndex < unitTopics.length - 1
             ? unitTopics[currentIndex + 1]
@@ -136,47 +137,91 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                     </div>
                 )}
 
-                {/* Next topic button - inline on desktop */}
-                {nextTopic && (
-                    <div className="mt-12 hidden sm:flex justify-end animate-fade-in">
-                        <Link
-                            href={`/topic/${nextTopic.id}`}
-                            className="group inline-flex items-center gap-3 px-6 py-4 rounded-2xl
-                                       bg-gradient-to-r from-purple-500 to-teal-400 text-white
-                                       font-semibold shadow-sm hover:shadow-lg hover:-translate-y-0.5
-                                       transition-all"
-                        >
-                            <span className="flex flex-col items-end leading-tight">
-                                <span className="text-xs font-normal text-white/80">Next topic</span>
-                                <span className="max-w-[200px] truncate">{nextTopic.title}</span>
-                            </span>
-                            <svg className="w-5 h-5 transition-transform group-hover:translate-x-1"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </Link>
+                {/* Prev / Next topic buttons - inline on desktop */}
+                {(prevTopic || nextTopic) && (
+                    <div className="mt-12 hidden sm:flex justify-between items-center gap-4 animate-fade-in">
+                        {prevTopic ? (
+                            <Link
+                                href={`/topic/${prevTopic.id}`}
+                                className="group inline-flex items-center gap-3 px-6 py-4 rounded-2xl
+                                           bg-gradient-to-r from-purple-500 to-teal-400 text-white
+                                           font-semibold shadow-sm hover:shadow-lg hover:-translate-y-0.5
+                                           transition-all"
+                            >
+                                <svg className="w-5 h-5 transition-transform group-hover:-translate-x-1"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                        d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                                </svg>
+                                <span className="flex flex-col items-start leading-tight">
+                                    <span className="text-xs font-normal text-white/80">Previous topic</span>
+                                    <span className="max-w-[200px] truncate">{prevTopic.title}</span>
+                                </span>
+                            </Link>
+                        ) : (
+                            <span />
+                        )}
+
+                        {nextTopic ? (
+                            <Link
+                                href={`/topic/${nextTopic.id}`}
+                                className="group inline-flex items-center gap-3 px-6 py-4 rounded-2xl
+                                           bg-gradient-to-r from-purple-500 to-teal-400 text-white
+                                           font-semibold shadow-sm hover:shadow-lg hover:-translate-y-0.5
+                                           transition-all"
+                            >
+                                <span className="flex flex-col items-end leading-tight">
+                                    <span className="text-xs font-normal text-white/80">Next topic</span>
+                                    <span className="max-w-[200px] truncate">{nextTopic.title}</span>
+                                </span>
+                                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                        d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </Link>
+                        ) : (
+                            <span />
+                        )}
                     </div>
                 )}
 
-                {/* Next topic button - fixed FAB on mobile (bottom-left) */}
-                {nextTopic && (
-                    <Link
-                        href={`/topic/${nextTopic.id}`}
-                        aria-label="Next topic"
-                        className="sm:hidden fixed bottom-8 left-6 h-14 px-5 z-40
-                                   bg-gradient-to-br from-purple-500 to-teal-400
-                                   text-white font-semibold rounded-2xl shadow-lg
-                                   shadow-purple-500/30 active:scale-100
-                                   transition-all duration-200
-                                   flex items-center gap-2"
-                    >
-                        <span>Next</span>
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
-                                d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                    </Link>
+                {/* Prev / Next topic buttons - fixed icon FABs on mobile (bottom-left) */}
+                {(prevTopic || nextTopic) && (
+                    <div className="sm:hidden fixed bottom-8 left-6 z-40 flex items-center gap-3">
+                        {prevTopic && (
+                            <Link
+                                href={`/topic/${prevTopic.id}`}
+                                aria-label="Previous topic"
+                                className="w-10 h-10 bg-gradient-to-br from-purple-500 to-teal-400
+                                           text-white rounded-xl shadow-lg
+                                           shadow-purple-500/30 active:scale-100
+                                           transition-all duration-200
+                                           flex items-center justify-center"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
+                                        d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+                                </svg>
+                            </Link>
+                        )}
+                        {nextTopic && (
+                            <Link
+                                href={`/topic/${nextTopic.id}`}
+                                aria-label="Next topic"
+                                className="w-10 h-10 bg-gradient-to-br from-purple-500 to-teal-400
+                                           text-white rounded-xl shadow-lg
+                                           shadow-purple-500/30 active:scale-100
+                                           transition-all duration-200
+                                           flex items-center justify-center"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
+                                        d="M5.25 4.5l7.5 7.5-7.5 7.5m6-15l7.5 7.5-7.5 7.5" />
+                                </svg>
+                            </Link>
+                        )}
+                    </div>
                 )}
 
                 <AddResourceButton topicId={topic.id} />
