@@ -86,6 +86,21 @@ export function ReaderView({ url, onClose, isMobile = false }: ReaderViewProps) 
     }
   }, [article]);
 
+  // Wrap wide tables in a horizontal scroll container so only the table scrolls,
+  // not the whole article. (Content is injected HTML, so we wrap in the DOM.)
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!article || !el) return;
+    el.querySelectorAll('table').forEach((table) => {
+      const parent = table.parentElement;
+      if (parent?.classList.contains('reader-table-wrap')) return; // already wrapped
+      const wrap = document.createElement('div');
+      wrap.className = 'reader-table-wrap';
+      table.parentNode?.insertBefore(wrap, table);
+      wrap.appendChild(table);
+    });
+  }, [article]);
+
   // Remove target="_blank" from all links and intercept clicks to open in split screen
   useEffect(() => {
     const contentElement = contentRef.current;
@@ -303,11 +318,24 @@ export function ReaderView({ url, onClose, isMobile = false }: ReaderViewProps) 
             border-top: 1px solid #e5e7eb;
             margin: 2rem 0;
           }
+          /* Wide tables scroll inside this wrapper; the article stays put. */
+          .reader-content .reader-table-wrap {
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 1.5rem 0;
+          }
           .reader-content table {
             width: 100%;
             border-collapse: collapse;
             margin: 1.5rem 0;
             border: 1px solid #e5e7eb;
+          }
+          /* Inside the wrapper the table sizes to its content so it can scroll. */
+          .reader-content .reader-table-wrap table {
+            width: max-content;
+            min-width: 100%;
+            margin: 0;
           }
           .reader-content th,
           .reader-content td {
