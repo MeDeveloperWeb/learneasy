@@ -366,6 +366,153 @@ export default function SearchPage() {
                         padding-bottom: 0.5rem !important;
                     }
                 }
+
+                /* =====================================================================
+                   DARK MODE
+                   This page loads inside a same-origin iframe, so the root layout's
+                   theme script still runs and puts \`.dark\` on this document's <html>.
+                   Google CSE injects its own light-colored stylesheet (and the rules
+                   above hardcode light colors), so override every visible CSE piece
+                   for dark here. Google's CSS uses !important, so we match it.
+                   ===================================================================== */
+                .dark .gsc-control-cse {
+                    color: #e4e4e7 !important;
+                }
+
+                /* Search field */
+                .dark .gsc-input-box {
+                    background: #26262b !important;
+                    border-color: #3f3f46 !important;
+                }
+                .dark input.gsc-input,
+                .dark .gsc-input .gsc-input,
+                .dark .gsib_a input.gsc-input {
+                    background: #26262b !important;
+                    color: #f4f4f5 !important;
+                }
+                .dark input.gsc-input::placeholder { color: #8b8b95 !important; }
+                .dark .gsib_a,
+                .dark .gsib_b,
+                .dark .gsc-input-box-tools,
+                .dark table.gsc-search-box,
+                .dark table.gsc-search-box td { background: transparent !important; }
+                /* Clear ("x") button */
+                .dark .gsst_a .gscb_a { color: #a6a6af !important; }
+                .dark .gsst_a:hover .gscb_a { color: #f4f4f5 !important; }
+
+                /* Autocomplete dropdown (appended near the input) */
+                .dark .gssb_c .gssb_e,
+                .dark table.gssb_c,
+                .dark .gssb_a td {
+                    background: #1e1e22 !important;
+                    color: #e4e4e7 !important;
+                    border-color: #3f3f46 !important;
+                }
+                .dark .gssb_a:hover td,
+                .dark .gssb_i td { background: #2c2c32 !important; }
+                .dark .gssb_a .gsq_a,
+                .dark .gssb_a b { color: #f4f4f5 !important; }
+
+                /* Result cards */
+                .dark .gsc-webResult,
+                .dark .gsc-result {
+                    background: #1e1e22 !important;
+                    border-color: #34343b !important;
+                }
+                .dark .gsc-webResult:hover,
+                .dark .gsc-result:hover {
+                    border-color: #a855f7 !important;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
+                }
+                .dark .gs-title,
+                .dark .gs-title * { color: #c4b5fd !important; }
+                .dark .gs-title:hover,
+                .dark .gs-title:hover * { color: #2dd4bf !important; }
+                .dark .gs-snippet { color: #c6c6cd !important; }
+                .dark .gsc-url-top,
+                .dark .gs-visibleUrl,
+                .dark .gsc-url-bottom { color: #34d399 !important; }
+
+                /* Misc CSE text (result count, "no results", spelling, tabs) */
+                .dark .gsc-result-info,
+                .dark .gsc-orderby-label,
+                .dark .gcsc-find-more-on-google,
+                .dark .gcsc-find-more-on-google-magnifier,
+                .dark .gs-spelling,
+                .dark .gs-spelling a,
+                .dark .gsc-tabHeader,
+                .dark .gsc-no-results-result .gs-snippet { color: #c6c6cd !important; }
+
+                /* Pagination */
+                .dark .gsc-cursor-page {
+                    background: #26262b !important;
+                    border-color: #3f3f46 !important;
+                    color: #c6c6cd !important;
+                }
+                .dark .gsc-cursor-page:hover {
+                    border-color: #a855f7 !important;
+                    color: #c4b5fd !important;
+                }
+                .dark .gsc-cursor-current-page { color: #ffffff !important; }
+
+                /* Search submit button — Google's bg isn't remapped in dark, so the
+                   white magnifier vanishes. Force the app gradient + white icon. */
+                .dark button.gsc-search-button,
+                .dark button.gsc-search-button-v2,
+                .dark .gsc-search-button,
+                .dark .gsc-search-button-v2 {
+                    background: linear-gradient(to right, #a855f7, #2dd4bf) !important;
+                }
+                .dark .gsc-search-button svg,
+                .dark .gsc-search-button-v2 svg,
+                .dark .gsc-search-button path,
+                .dark .gsc-search-button-v2 path { fill: #ffffff !important; }
+
+                /* Result thumbnails / web-image boxes — these render as white blocks
+                   behind images in dark; make them blend into the dark surface. */
+                .dark .gsc-table-cell-thumbnail,
+                .dark .gsc-thumbnail,
+                .dark .gs-image-box,
+                .dark .gs-web-image-box,
+                .dark .gs-web-image-box-landscape,
+                .dark .gs-web-image-box-portrait,
+                .dark .gsc-imageResult,
+                .dark .gs-image,
+                .dark a.gs-image {
+                    background: transparent !important;
+                    border-color: #34343b !important;
+                }
+
+                /* Refinement / tab strip ("All results · Youtube · Image") — white bg */
+                .dark .gsc-tabsArea,
+                .dark .gsc-refinementsArea,
+                .dark .gsc-refinementBlock {
+                    background: #1e1e22 !important;
+                    border-color: #34343b !important;
+                }
+                /* Edge fade overlay → fade to the dark surface, not white */
+                .dark .gsc-refinementsGradient {
+                    background: linear-gradient(to right, rgba(30, 30, 34, 0), #1e1e22) !important;
+                }
+                .dark .gsc-tabHeader,
+                .dark .gsc-tabHeader.gsc-tabhInactive,
+                .dark .gsc-refinementHeader span,
+                .dark .gsc-refinementHeader.gsc-refinementhInactive span { color: #a6a6af !important; }
+                .dark .gsc-tabHeader.gsc-tabhInactive:hover,
+                .dark .gsc-refinementHeader.gsc-refinementhInactive:hover span { color: #f4f4f5 !important; }
+                .dark .gsc-tabHeader.gsc-tabhActive {
+                    color: #c4b5fd !important;
+                    border-color: #a855f7 !important;
+                    background: transparent !important;
+                }
+                .dark .gsc-refinementHeader.gsc-refinementhActive span { color: #c4b5fd !important; }
+                /* The chips themselves carry a white bg — clear it. Active keeps a
+                   tint via the higher-specificity rules below. */
+                .dark .gsc-tabHeader,
+                .dark .gsc-refinementHeader { background-color: transparent !important; }
+                .dark .gsc-refinementHeader.gsc-refinementhActive {
+                    background-color: transparent !important;
+                }
             `}</style>
         </div>
     );

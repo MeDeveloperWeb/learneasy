@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useNav } from "./NavProvider";
 import { useSplitScreen } from "./SplitScreenProvider";
 import { useTheme } from "./ThemeProvider";
@@ -142,6 +142,16 @@ export function BottomBar() {
     const { splitScreenEnabled } = useSplitScreen();
     const { theme, toggleTheme } = useTheme();
     const [searchOpen, setSearchOpen] = useState(false);
+
+    // The app chrome is global, but the /search panel renders this whole layout
+    // inside a same-origin iframe. The panel is narrow, so `md:hidden` trips the
+    // mobile breakpoint and the bar/menu show *inside the Google panel*. The real
+    // app is never iframed, so suppress the bar entirely when embedded.
+    const [inIframe, setInIframe] = useState(false);
+    useEffect(() => {
+        setInIframe(window.self !== window.top);
+    }, []);
+    if (inIframe) return null;
 
     const isHome = pathname === "/";
     const isTopic = pathname?.startsWith("/topic/") ?? false;

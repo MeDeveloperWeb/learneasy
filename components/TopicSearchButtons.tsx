@@ -16,10 +16,13 @@ export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
         setMounted(true);
     }, []);
 
+    // Google query: "topic - paper" when a paper is open, else just the topic.
+    const searchQuery = currentPaperName ? `${topicTitle} - ${currentPaperName}` : topicTitle;
+
     const handleSearchInPanel = (e: React.MouseEvent) => {
         e.preventDefault();
         // Use absolute URL for split screen to avoid iframe compatibility check issues
-        const searchUrl = `${window.location.origin}/search?q=${encodeURIComponent(topicTitle)}`;
+        const searchUrl = `${window.location.origin}/search?q=${encodeURIComponent(searchQuery)}`;
         openInSplitScreen(searchUrl, 'iframe');
     };
 
@@ -32,7 +35,7 @@ export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
         <div className="flex items-center gap-2">
             {/* Google Search Button */}
             <a
-                href={`https://www.google.com/search?q=${encodeURIComponent(topicTitle)}`}
+                href={`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 px-3 py-2 bg-white border-2 border-gray-200
