@@ -2,8 +2,10 @@
 
 import { ReaderView } from "./ReaderView";
 import { RichTextViewer } from "./RichTextViewer";
+import { GeminiChat } from "./GeminiChat";
 import { useState, useEffect, useRef } from "react";
 import { useSplitScreen } from "./SplitScreenProvider";
+import { getPromptTemplate, fillTemplate } from "@/lib/gemini";
 
 interface SplitScreenContentProps {
   contentType: 'iframe' | 'pdf' | 'image' | 'text' | null;
@@ -12,6 +14,7 @@ interface SplitScreenContentProps {
   readerUrl: string | null;
   textContent: string | null;
   textTitle: string | null;
+  geminiActive?: boolean;
   onClose: () => void;
   switchToReaderMode: () => void;
   isMobile?: boolean;
@@ -24,11 +27,12 @@ export function SplitScreenContent({
   readerUrl,
   textContent,
   textTitle,
+  geminiActive = false,
   onClose,
   switchToReaderMode,
   isMobile = false,
 }: SplitScreenContentProps) {
-  const { canGoBack, canGoForward, goBack, goForward, currentTopicId, currentTopicResources, setPendingResourceUrl } = useSplitScreen();
+  const { canGoBack, canGoForward, goBack, goForward, currentTopicId, currentTopicName, currentPaperName, currentTopicResources, setPendingResourceUrl, openGeminiInSplitScreen } = useSplitScreen();
   const [iframeError, setIframeError] = useState(false);
   const [showReaderButton, setShowReaderButton] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -86,6 +90,37 @@ export function SplitScreenContent({
     // Set the pending URL to trigger the add resource modal
     setPendingResourceUrl(originalUrl);
   };
+
+  // Resolve a name for the {topic name} variable from the best context
+  // available: the current topic, else a Google query, else the text title.
+  const resolveTopicName = (): string => {
+    if (currentTopicName) return currentTopicName;
+    const url = originalUrl || iframeUrl || "";
+    try {
+      const u = new URL(url);
+      if (u.hostname.includes("google.") && u.pathname.includes("/search")) {
+        const q = u.searchParams.get("q");
+        if (q) return q;
+      }
+    } catch {
+      /* not a parseable URL */
+    }
+    return textTitle || "this topic";
+  };
+
+  // Fill the user's editable prompt template, then open Gemini and auto-send it.
+  const askGemini = () => {
+    const prompt = fillTemplate(getPromptTemplate(), {
+      topic: resolveTopicName(),
+      paper: currentPaperName,
+    });
+    openGeminiInSplitScreen(prompt || undefined);
+  };
+
+  // Render Gemini chat (has no URL/text content of its own)
+  if (geminiActive) {
+    return <GeminiChat onClose={onClose} />;
+  }
 
   // Render text content
   if (textContent) {
@@ -192,7 +227,20 @@ export function SplitScreenContent({
 
           {/* Center: Reader mode, Add to Page, and View original buttons */}
           <div className="flex-1 flex justify-center items-center gap-2">
-            {showReaderButton && !iframeError && contentType === 'iframe' && (
+            {isGoogleSearchPage && (
+              <button
+                type="button"
+                onClick={askGemini}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg hover:shadow-md transition-all font-medium"
+                title="Ask Gemini about this"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4L12 2z" />
+                </svg>
+                Ask Gemini
+              </button>
+            )}
+            {showReaderButton && !iframeError && contentType === 'iframe' && !isGoogleSearchPage && (
               <button
                 type="button"
                 onClick={switchToReaderMode}

@@ -10,6 +10,7 @@ import { RichTextEditor } from './RichTextEditor';
 import { Modal } from './Modal';
 import { LikeButton } from './LikeButton';
 import { ResourcePlaceholder } from './ResourcePlaceholder';
+import { stripMarker, MARKDOWN_CLASS } from '@/lib/gemini';
 
 interface ResourceCardProps {
     resource: {
@@ -315,9 +316,9 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
 
                 {!isEditing && resource.contentType === 'TEXT' && resource.textContent && (
                     <div
-                        className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none
-                                   [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 line-clamp-4"
-                        dangerouslySetInnerHTML={{ __html: resource.textContent }}
+                        className={`text-sm text-gray-700 leading-relaxed max-w-none line-clamp-4
+                                   [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 ${MARKDOWN_CLASS}`}
+                        dangerouslySetInnerHTML={{ __html: stripMarker(resource.textContent) }}
                     />
                 )}
 

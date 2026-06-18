@@ -61,7 +61,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
             : null;
 
     return (
-        <TopicProvider topicId={id} resourceUrls={resourceUrls}>
+        <TopicProvider topicId={id} topicName={topic.title} paperName={topic.unit.paper.title} resourceUrls={resourceUrls}>
             <TopicNavConfig prev={prevTopic} next={nextTopic} />
             <div className="min-h-screen pb-24 md:pb-28">
                 <Header />

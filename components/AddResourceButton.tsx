@@ -13,7 +13,7 @@ export function AddResourceButton({ topicId }: { topicId: string }) {
     const [contentType, setContentType] = useState<ContentType>('LINK');
     const [initialUrl, setInitialUrl] = useState<string>('');
     const [mounted, setMounted] = useState(false);
-    const { pendingResourceUrl, setPendingResourceUrl, splitScreenEnabled, iframeUrl, readerUrl, textContent, isDesktop } = useSplitScreen();
+    const { pendingResourceUrl, setPendingResourceUrl, splitScreenEnabled, iframeUrl, readerUrl, textContent, geminiActive, isDesktop } = useSplitScreen();
     const { setPrimaryAction } = useNav();
 
     useEffect(() => {
@@ -46,7 +46,7 @@ export function AddResourceButton({ topicId }: { topicId: string }) {
     };
 
     // Check if split screen is showing content on desktop
-    const hasContent = iframeUrl || readerUrl || textContent;
+    const hasContent = iframeUrl || readerUrl || textContent || geminiActive;
     const showSplitScreen = mounted && splitScreenEnabled && hasContent && isDesktop;
 
     // Use fixed positioning when split screen is off, absolute when it's on

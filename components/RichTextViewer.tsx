@@ -15,7 +15,9 @@ import { Color } from '@tiptap/extension-color';
 import { Highlight } from '@tiptap/extension-highlight';
 import { Subscript } from '@tiptap/extension-subscript';
 import { Superscript } from '@tiptap/extension-superscript';
+import 'katex/dist/katex.min.css';
 import { useSplitScreen } from './SplitScreenProvider';
+import { isRenderedMarkdown, stripMarker, MARKDOWN_CLASS } from '@/lib/gemini';
 
 interface RichTextViewerProps {
   content: string;
@@ -94,6 +96,19 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
       editor.commands.setContent(content);
     }
   }, [content, editor]);
+
+  // AI-generated notes are stored as pre-rendered HTML (with KaTeX math) that
+  // tiptap can't display — render that HTML directly instead.
+  if (isRenderedMarkdown(content)) {
+    return (
+      <div className="w-full h-full overflow-y-auto">
+        <div
+          className={`p-8 ${MARKDOWN_CLASS}`}
+          dangerouslySetInnerHTML={{ __html: stripMarker(content) }}
+        />
+      </div>
+    );
+  }
 
   return (
     <RichTextEditorProvider editor={editor}>

@@ -575,6 +575,36 @@ pre[class*="language-"] code {
   /* Inline background styles for highlights */
 }
 
+/* Gemini markdown (chat bubbles + AI resource notes).
+   Code/highlight need explicit colors: the rendered HTML uses arbitrary-variant
+   utilities (e.g. [&_code]:bg-gray-100) whose class names the dark-mode remap
+   doesn't match, so without these the bg stays light while text flips light. */
+.gemini-md code {
+  background-color: #f4f4f5;
+  color: #be185d;
+  padding: 0.125rem 0.3rem;
+  border-radius: 0.25rem;
+}
+.gemini-md pre {
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+.gemini-md pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+}
+/* Highlight backgrounds are always light → keep their text dark in both themes. */
+.gemini-md mark,
+.dark .gemini-md mark,
+.dark .ProseMirror mark {
+  color: #18181b;
+}
+.dark .gemini-md code {
+  background-color: #2f2f35;
+  color: #f5a8d3;
+}
+
 /* =========================================================================
    DARK MODE
    Activated by the `dark` class on <html> (see ThemeProvider + inline script).

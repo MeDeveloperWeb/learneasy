@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useSplitScreen } from '@/components/SplitScreenProvider';
+import { getPromptTemplate, fillTemplate } from '@/lib/gemini';
 
 interface TopicSearchButtonsProps {
     topicTitle: string;
 }
 
 export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
-    const { openInSplitScreen, splitScreenEnabled } = useSplitScreen();
+    const { openInSplitScreen, openGeminiInSplitScreen, currentPaperName, splitScreenEnabled } = useSplitScreen();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -20,6 +21,11 @@ export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
         // Use absolute URL for split screen to avoid iframe compatibility check issues
         const searchUrl = `${window.location.origin}/search?q=${encodeURIComponent(topicTitle)}`;
         openInSplitScreen(searchUrl, 'iframe');
+    };
+
+    const handleAskGemini = () => {
+        const prompt = fillTemplate(getPromptTemplate(), { topic: topicTitle, paper: currentPaperName });
+        openGeminiInSplitScreen(prompt);
     };
 
     return (
@@ -63,6 +69,20 @@ export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
                     </svg>
                 </button>
             )}
+
+            {/* Ask Gemini Button - opens the AI chat in the split panel */}
+            <button
+                onClick={handleAskGemini}
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500 to-teal-400
+                         rounded-lg hover:from-purple-600 hover:to-teal-500 transition-all
+                         text-white font-medium text-sm shadow-sm hover:shadow-md active:scale-95"
+                title="Ask Gemini about this topic"
+            >
+                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4L12 2z" />
+                </svg>
+                <span>Ask Gemini</span>
+            </button>
         </div>
     );
 }

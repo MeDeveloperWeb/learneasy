@@ -15,12 +15,13 @@ export function SplitScreenLayout({ children }: { children: React.ReactNode }) {
     textContent,
     textTitle,
     contentType,
+    geminiActive,
     switchToReaderMode,
     closeSplitScreen,
     isDesktop
   } = useSplitScreen();
 
-  const hasContent = iframeUrl || readerUrl || textContent;
+  const hasContent = iframeUrl || readerUrl || textContent || geminiActive;
   const showSplitScreen = splitScreenEnabled && hasContent;
   const desktopSplitActive = isDesktop && showSplitScreen;
 
@@ -71,6 +72,7 @@ export function SplitScreenLayout({ children }: { children: React.ReactNode }) {
               readerUrl={readerUrl}
               textContent={textContent}
               textTitle={textTitle}
+              geminiActive={geminiActive}
               onClose={closeSplitScreen}
               switchToReaderMode={switchToReaderMode}
             />
@@ -96,6 +98,7 @@ export function SplitScreenLayout({ children }: { children: React.ReactNode }) {
           readerUrl={readerUrl}
           textContent={textContent}
           textTitle={textTitle}
+          geminiActive={geminiActive}
           switchToReaderMode={switchToReaderMode}
         />
       )}

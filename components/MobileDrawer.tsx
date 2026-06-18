@@ -12,6 +12,7 @@ interface MobileDrawerProps {
   readerUrl: string | null;
   textContent: string | null;
   textTitle: string | null;
+  geminiActive?: boolean;
   switchToReaderMode: () => void;
 }
 
@@ -24,6 +25,7 @@ export function MobileDrawer({
   readerUrl,
   textContent,
   textTitle,
+  geminiActive = false,
   switchToReaderMode,
 }: MobileDrawerProps) {
   const [isClosing, setIsClosing] = useState(false);
@@ -174,6 +176,7 @@ export function MobileDrawer({
           readerUrl={readerUrl}
           textContent={textContent}
           textTitle={textTitle}
+          geminiActive={geminiActive}
           onClose={handleClose}
           switchToReaderMode={switchToReaderMode}
         />

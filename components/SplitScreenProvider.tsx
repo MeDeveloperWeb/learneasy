@@ -23,6 +23,9 @@ interface SplitScreenContextType {
     contentType: 'iframe' | 'pdf' | 'image' | 'text' | null;
     openInSplitScreen: (url: string, type?: 'iframe' | 'pdf' | 'image') => void;
     openTextInSplitScreen: (content: string, title: string) => void;
+    geminiActive: boolean;
+    geminiInitialPrompt: string | null;
+    openGeminiInSplitScreen: (initialPrompt?: string) => void;
     switchToReaderMode: () => void;
     closeSplitScreen: () => void;
     isDesktop: boolean;
@@ -31,23 +34,33 @@ interface SplitScreenContextType {
     goBack: () => void;
     goForward: () => void;
     currentTopicId: string | null;
+    currentTopicName: string | null;
+    currentPaperName: string | null;
     currentTopicResources: string[]; // Array of resource URLs
-    setCurrentTopic: (topicId: string | null, resourceUrls: string[]) => void;
+    setCurrentTopic: (topicId: string | null, resourceUrls: string[], topicName?: string | null, paperName?: string | null) => void;
     pendingResourceUrl: string | null; // URL to pre-fill in add resource form
     setPendingResourceUrl: (url: string | null) => void;
 }
 
 const SplitScreenContext = createContext<SplitScreenContextType | null>(null);
 
+// Fresh key (no existing user has it set) → split view defaults ON for everyone
+// until they toggle it off, regardless of any previously stored preference.
+const SPLIT_KEY = 'splitViewEnabledV2';
+
 export function SplitScreenProvider({ children }: { children: ReactNode }) {
     const [splitScreenEnabled, setSplitScreenEnabledState] = useState(() => {
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('splitScreenEnabled');
-            if (saved !== null) {
-                return JSON.parse(saved);
+            try {
+                const saved = localStorage.getItem(SPLIT_KEY);
+                if (saved !== null) {
+                    return JSON.parse(saved);
+                }
+            } catch {
+                // ignore storage errors (private mode etc.)
             }
         }
-        return false;
+        return true; // default ON
     });
     const [iframeUrl, setIframeUrl] = useState<string | null>(null);
     const [originalUrl, setOriginalUrl] = useState<string | null>(null);
@@ -55,11 +68,15 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
     const [textContent, setTextContent] = useState<string | null>(null);
     const [textTitle, setTextTitle] = useState<string | null>(null);
     const [contentType, setContentType] = useState<'iframe' | 'pdf' | 'image' | 'text' | null>(null);
+    const [geminiActive, setGeminiActive] = useState(false);
+    const [geminiInitialPrompt, setGeminiInitialPrompt] = useState<string | null>(null);
     // Always start with false to prevent hydration mismatch
     const [isDesktop, setIsDesktop] = useState(false);
 
     // Current topic context for "Add to Page" functionality
     const [currentTopicId, setCurrentTopicId] = useState<string | null>(null);
+    const [currentTopicName, setCurrentTopicName] = useState<string | null>(null);
+    const [currentPaperName, setCurrentPaperName] = useState<string | null>(null);
     const [currentTopicResources, setCurrentTopicResources] = useState<string[]>([]);
     const [pendingResourceUrl, setPendingResourceUrl] = useState<string | null>(null);
 
@@ -86,7 +103,7 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
 
     const setSplitScreenEnabled = (enabled: boolean) => {
         setSplitScreenEnabledState(enabled);
-        localStorage.setItem('splitScreenEnabled', JSON.stringify(enabled));
+        localStorage.setItem(SPLIT_KEY, JSON.stringify(enabled));
         if (!enabled) {
             setIframeUrl(null);
             setOriginalUrl(null);
@@ -94,9 +111,26 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             setTextContent(null);
             setTextTitle(null);
             setContentType(null);
+            setGeminiActive(false);
+            setGeminiInitialPrompt(null);
             setNavigationHistory([]);
             setCurrentHistoryIndex(-1);
         }
+    };
+
+    // Open the Gemini chat pane. Enables split screen and clears any other
+    // content so the chat takes over the side panel.
+    const openGeminiInSplitScreen = (initialPrompt?: string) => {
+        setSplitScreenEnabledState(true);
+        localStorage.setItem(SPLIT_KEY, JSON.stringify(true));
+        setIframeUrl(null);
+        setOriginalUrl(null);
+        setReaderUrl(null);
+        setTextContent(null);
+        setTextTitle(null);
+        setContentType(null);
+        setGeminiInitialPrompt(initialPrompt ?? null);
+        setGeminiActive(true);
     };
 
 
@@ -161,9 +195,11 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         }
 
         if (splitScreenEnabled) {
-            // Clear text content when opening a link
+            // Clear text content and Gemini chat when opening a link
             setTextContent(null);
             setTextTitle(null);
+            setGeminiActive(false);
+            setGeminiInitialPrompt(null);
 
             // Special handling for internal search page - ensure it loads in iframe and convert URL for "View original"
             let displayOriginalUrl = actualUrl;
@@ -281,6 +317,8 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         // Always set the content - the layout component decides whether to show it
         setIframeUrl(null);
         setReaderUrl(null);
+        setGeminiActive(false);
+        setGeminiInitialPrompt(null);
         setTextContent(content);
         setTextTitle(title);
         setContentType('text');
@@ -294,13 +332,17 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
         setTextContent(null);
         setTextTitle(null);
         setContentType(null);
+        setGeminiActive(false);
+        setGeminiInitialPrompt(null);
         setNavigationHistory([]);
         setCurrentHistoryIndex(-1);
     };
 
-    const setCurrentTopic = (topicId: string | null, resourceUrls: string[]) => {
+    const setCurrentTopic = (topicId: string | null, resourceUrls: string[], topicName?: string | null, paperName?: string | null) => {
         setCurrentTopicId(topicId);
         setCurrentTopicResources(resourceUrls);
+        setCurrentTopicName(topicName ?? null);
+        setCurrentPaperName(paperName ?? null);
     };
 
     // Listen for navigation messages from iframes (e.g., search results)
@@ -330,6 +372,9 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             contentType,
             openInSplitScreen,
             openTextInSplitScreen,
+            geminiActive,
+            geminiInitialPrompt,
+            openGeminiInSplitScreen,
             switchToReaderMode,
             closeSplitScreen,
             isDesktop,
@@ -338,6 +383,8 @@ export function SplitScreenProvider({ children }: { children: ReactNode }) {
             goBack,
             goForward,
             currentTopicId,
+            currentTopicName,
+            currentPaperName,
             currentTopicResources,
             setCurrentTopic,
             pendingResourceUrl,
