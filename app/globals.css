@@ -660,6 +660,21 @@ pre[class*="language-"] code {
 .dark .text-gray-300 { color: #74747e; }
 /* text-white stays white (used on gradient buttons/badges) */
 
+/* ---- Form controls ----
+   Text inputs/textareas/selects have no remappable utility class and default to
+   a white field with inherited (light) text → invisible in dark. Target tags. */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.dark textarea,
+.dark select {
+  background-color: #26262b;
+  color: #f4f4f5;
+  border-color: #3f3f46;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #8b8b95;
+}
+
 /* ---- Borders ---- */
 .dark .border-gray-100 { border-color: #2a2a30; }
 .dark .border-gray-200 { border-color: #34343b; }
