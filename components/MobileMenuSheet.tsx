@@ -22,12 +22,13 @@ function Switch({ on, onToggle, label }: { on: boolean; onToggle: () => void; la
             role="switch"
             aria-checked={on}
             aria-label={label}
-            className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0
+            className={`relative inline-flex h-6 w-11 items-center rounded-full px-1 transition-colors flex-shrink-0
                        ${on ? "bg-gradient-to-r from-purple-500 to-teal-400" : "bg-gray-300"}`}
         >
             <span
-                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform
-                           ${on ? "translate-x-6" : "translate-x-1"}`}
+                style={{ backgroundColor: "#ffffff" }}
+                className={`inline-block h-4 w-4 rounded-full shadow-sm transition-transform
+                           ${on ? "translate-x-5" : "translate-x-0"}`}
             />
         </button>
     );

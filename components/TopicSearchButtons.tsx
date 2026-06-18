@@ -70,18 +70,25 @@ export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
                 </button>
             )}
 
-            {/* Ask Gemini Button - opens the AI chat in the split panel */}
+            {/* Ask Gemini - transparent button, Gemini logo only (compact on mobile) */}
             <button
                 onClick={handleAskGemini}
-                className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500 to-teal-400
-                         rounded-lg hover:from-purple-600 hover:to-teal-500 transition-all
-                         text-white font-medium text-sm shadow-sm hover:shadow-md active:scale-95"
+                className="flex items-center justify-center gap-2 px-2.5 py-2 bg-transparent rounded-lg
+                         hover:bg-purple-50 transition-all text-gray-700 hover:text-purple-700
+                         font-medium text-sm active:scale-95"
                 title="Ask Gemini about this topic"
             >
-                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="url(#geminiStar)">
+                    <defs>
+                        <linearGradient id="geminiStar" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                            <stop stopColor="#4285F4" />
+                            <stop offset="0.5" stopColor="#9B72CB" />
+                            <stop offset="1" stopColor="#D96570" />
+                        </linearGradient>
+                    </defs>
                     <path d="M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4L12 2z" />
                 </svg>
-                <span>Ask Gemini</span>
+                <span className="hidden md:inline">Ask Gemini</span>
             </button>
         </div>
     );

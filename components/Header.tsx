@@ -129,16 +129,17 @@ export function Header() {
                             <span className="text-sm text-gray-700 font-medium">Split View</span>
                             <button
                                 onClick={() => setSplitScreenEnabled(!splitScreenEnabled)}
-                                className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full px-1 transition-colors flex-shrink-0
                                            ${splitScreenEnabled
                                         ? 'bg-gradient-to-r from-purple-500 to-teal-400'
                                         : 'bg-gray-300'}`}
                                 title={splitScreenEnabled ? 'Disable split screen' : 'Enable split screen'}
                             >
                                 <div
-                                    className={`absolute top-1 w-4 h-4 bg-white rounded-full
+                                    style={{ backgroundColor: '#ffffff' }}
+                                    className={`inline-block h-4 w-4 rounded-full
                                                shadow-sm transition-transform
-                                               ${splitScreenEnabled ? 'translate-x-6' : 'translate-x-1'}`}
+                                               ${splitScreenEnabled ? 'translate-x-5' : 'translate-x-0'}`}
                                 />
                             </button>
                         </div>

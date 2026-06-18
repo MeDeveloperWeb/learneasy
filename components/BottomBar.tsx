@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { useNav } from "./NavProvider";
 import { useSplitScreen } from "./SplitScreenProvider";
+import { useTheme } from "./ThemeProvider";
 import { MobileMenuSheet } from "./MobileMenuSheet";
 import { GlobalSearch } from "./GlobalSearch";
 
@@ -46,6 +47,14 @@ const ICONS: Record<string, ReactNode> = {
     ),
     menu: (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+    ),
+    moon: (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+    ),
+    sun: (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
     ),
 };
 
@@ -131,6 +140,7 @@ export function BottomBar() {
     const pathname = usePathname();
     const { prev, next, primaryAction, menuOpen, openMenu, closeMenu } = useNav();
     const { splitScreenEnabled } = useSplitScreen();
+    const { theme, toggleTheme } = useTheme();
     const [searchOpen, setSearchOpen] = useState(false);
 
     const isHome = pathname === "/";
@@ -162,8 +172,19 @@ export function BottomBar() {
         );
     } else {
         middle.push(searchSlot);
-        if (isPaper && primaryAction) {
-            middle.push(<AddSlot key="add" label={primaryAction.label} onClick={primaryAction.onClick} />);
+        if (isPaper) {
+            if (primaryAction) {
+                middle.push(<AddSlot key="add" label={primaryAction.label} onClick={primaryAction.onClick} />);
+            }
+            // Dark-mode toggle — keeps the paper bar symmetric (FAB stays centred).
+            middle.push(
+                <Slot
+                    key="theme"
+                    icon={theme === "dark" ? "sun" : "moon"}
+                    label={theme === "dark" ? "Light" : "Dark"}
+                    onClick={toggleTheme}
+                />
+            );
         }
     }
 
