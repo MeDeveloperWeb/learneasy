@@ -63,7 +63,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
     return (
         <TopicProvider topicId={id} resourceUrls={resourceUrls}>
             <TopicNavConfig prev={prevTopic} next={nextTopic} />
-            <div className="min-h-screen pb-24 md:pb-20">
+            <div className="min-h-screen pb-24 md:pb-28">
                 <Header />
 
             <main className="max-w-7xl mx-auto px-6 py-12">
@@ -139,25 +139,25 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                     </div>
                 )}
 
-                {/* Prev / Next topic buttons - inline on desktop (mobile uses the bottom bar) */}
+                {/* Prev / Next topic links - inline on desktop (mobile uses the bottom bar) */}
                 {(prevTopic || nextTopic) && (
-                    <div className="mt-12 hidden md:flex justify-between items-center gap-4 animate-fade-in">
+                    <div className="mt-16 pt-6 border-t border-gray-100 hidden md:flex justify-between items-center gap-6 animate-fade-in">
                         {prevTopic ? (
                             <Link
                                 href={`/topic/${prevTopic.id}`}
-                                className="group inline-flex items-center gap-3 px-6 py-4 rounded-2xl
-                                           bg-gradient-to-r from-purple-500 to-teal-400 text-white
-                                           font-semibold shadow-sm hover:shadow-lg hover:-translate-y-0.5
-                                           transition-all"
+                                className="group flex items-center gap-2 min-w-0"
                             >
-                                <svg className="w-5 h-5 transition-transform group-hover:-translate-x-1"
+                                <svg className="w-4 h-4 flex-shrink-0 text-gray-400 transition-all
+                                                group-hover:text-purple-500 group-hover:-translate-x-0.5"
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                        d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                                 </svg>
-                                <span className="flex flex-col items-start leading-tight">
-                                    <span className="text-xs font-normal text-white/80">Previous topic</span>
-                                    <span className="max-w-[200px] truncate">{prevTopic.title}</span>
+                                <span className="flex flex-col leading-tight min-w-0">
+                                    <span className="text-[11px] uppercase tracking-wide text-gray-400">Previous</span>
+                                    <span className="text-sm font-medium text-gray-600 truncate
+                                                     transition-colors group-hover:text-purple-600">
+                                        {prevTopic.title}
+                                    </span>
                                 </span>
                             </Link>
                         ) : (
@@ -167,19 +167,19 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                         {nextTopic ? (
                             <Link
                                 href={`/topic/${nextTopic.id}`}
-                                className="group inline-flex items-center gap-3 px-6 py-4 rounded-2xl
-                                           bg-gradient-to-r from-purple-500 to-teal-400 text-white
-                                           font-semibold shadow-sm hover:shadow-lg hover:-translate-y-0.5
-                                           transition-all"
+                                className="group flex items-center gap-2 min-w-0 text-right"
                             >
-                                <span className="flex flex-col items-end leading-tight">
-                                    <span className="text-xs font-normal text-white/80">Next topic</span>
-                                    <span className="max-w-[200px] truncate">{nextTopic.title}</span>
+                                <span className="flex flex-col items-end leading-tight min-w-0">
+                                    <span className="text-[11px] uppercase tracking-wide text-gray-400">Next</span>
+                                    <span className="text-sm font-medium text-gray-600 truncate
+                                                     transition-colors group-hover:text-purple-600">
+                                        {nextTopic.title}
+                                    </span>
                                 </span>
-                                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1"
+                                <svg className="w-4 h-4 flex-shrink-0 text-gray-400 transition-all
+                                                group-hover:text-purple-500 group-hover:translate-x-0.5"
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                        d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                 </svg>
                             </Link>
                         ) : (
