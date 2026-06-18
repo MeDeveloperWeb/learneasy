@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { AddResourceForm } from './AddResourceForm';
 import { Modal } from './Modal';
 import { useSplitScreen } from './SplitScreenProvider';
+import { useNav } from './NavProvider';
 
 type ContentType = 'LINK' | 'IMAGE' | 'TEXT' | 'PDF';
 
@@ -13,10 +14,18 @@ export function AddResourceButton({ topicId }: { topicId: string }) {
     const [initialUrl, setInitialUrl] = useState<string>('');
     const [mounted, setMounted] = useState(false);
     const { pendingResourceUrl, setPendingResourceUrl, splitScreenEnabled, iframeUrl, readerUrl, textContent, isDesktop } = useSplitScreen();
+    const { setPrimaryAction } = useNav();
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    // Expose "Add resource" as the page's primary action so the mobile bottom
+    // bar's "+" opens this same modal (no duplicate modal instance).
+    useEffect(() => {
+        setPrimaryAction({ label: 'Add resource', onClick: () => setIsOpen(true) });
+        return () => setPrimaryAction(null);
+    }, [setPrimaryAction]);
 
     // Listen for pending resource URL to auto-open modal with pre-filled URL
     useEffect(() => {
@@ -55,7 +64,7 @@ export function AddResourceButton({ topicId }: { topicId: string }) {
                           shadow-purple-500/30 hover:shadow-purple-500/50
                           hover:scale-110 active:scale-100
                           transition-all duration-200
-                          flex items-center justify-center
+                          hidden md:flex items-center justify-center
                           group animate-pulse-glow`}
                 aria-label="Add Resource"
             >

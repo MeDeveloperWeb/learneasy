@@ -6,6 +6,7 @@ import { AddResourceButton } from '@/components/AddResourceButton';
 import { ResourceCard } from '@/components/ResourceCard';
 import { TopicSearchButtons } from '@/components/TopicSearchButtons';
 import { TopicProvider } from '@/components/TopicProvider';
+import { TopicNavConfig } from '@/components/TopicNavConfig';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,7 +62,8 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
 
     return (
         <TopicProvider topicId={id} resourceUrls={resourceUrls}>
-            <div className="min-h-screen pb-20">
+            <TopicNavConfig prev={prevTopic} next={nextTopic} />
+            <div className="min-h-screen pb-24 md:pb-20">
                 <Header />
 
             <main className="max-w-7xl mx-auto px-6 py-12">
@@ -137,9 +139,9 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                     </div>
                 )}
 
-                {/* Prev / Next topic buttons - inline on desktop */}
+                {/* Prev / Next topic buttons - inline on desktop (mobile uses the bottom bar) */}
                 {(prevTopic || nextTopic) && (
-                    <div className="mt-12 hidden sm:flex justify-between items-center gap-4 animate-fade-in">
+                    <div className="mt-12 hidden md:flex justify-between items-center gap-4 animate-fade-in">
                         {prevTopic ? (
                             <Link
                                 href={`/topic/${prevTopic.id}`}
@@ -182,44 +184,6 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                             </Link>
                         ) : (
                             <span />
-                        )}
-                    </div>
-                )}
-
-                {/* Prev / Next topic buttons - fixed icon FABs on mobile (bottom-left) */}
-                {(prevTopic || nextTopic) && (
-                    <div className="sm:hidden fixed bottom-8 left-6 z-40 flex items-center gap-3">
-                        {prevTopic && (
-                            <Link
-                                href={`/topic/${prevTopic.id}`}
-                                aria-label="Previous topic"
-                                className="w-10 h-10 bg-gradient-to-br from-purple-500 to-teal-400
-                                           text-white rounded-xl shadow-lg
-                                           shadow-purple-500/30 active:scale-100
-                                           transition-all duration-200
-                                           flex items-center justify-center"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
-                                        d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
-                                </svg>
-                            </Link>
-                        )}
-                        {nextTopic && (
-                            <Link
-                                href={`/topic/${nextTopic.id}`}
-                                aria-label="Next topic"
-                                className="w-10 h-10 bg-gradient-to-br from-purple-500 to-teal-400
-                                           text-white rounded-xl shadow-lg
-                                           shadow-purple-500/30 active:scale-100
-                                           transition-all duration-200
-                                           flex items-center justify-center"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
-                                        d="M5.25 4.5l7.5 7.5-7.5 7.5m6-15l7.5 7.5-7.5 7.5" />
-                                </svg>
-                            </Link>
                         )}
                     </div>
                 )}

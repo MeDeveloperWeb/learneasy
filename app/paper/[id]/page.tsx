@@ -30,7 +30,7 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
     }
 
     return (
-        <div className="min-h-screen pb-20 relative">
+        <div className="min-h-screen pb-24 md:pb-20 relative">
             <Header />
 
             <main className="max-w-7xl mx-auto px-6 py-12">

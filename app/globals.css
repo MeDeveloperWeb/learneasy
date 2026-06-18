@@ -151,6 +151,26 @@ body {
   }
 }
 
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheetDown {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(100%);
+  }
+}
+
 /* Animation utilities */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out forwards;
@@ -180,10 +200,25 @@ body {
   animation: slideOutRight 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+.animate-sheet-up {
+  animation: sheetUp 0.28s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.animate-sheet-down {
+  animation: sheetDown 0.22s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+/* Bottom-bar / sheet safe-area inset for iOS home indicator */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   .animate-slide-in-right,
-  .animate-slide-out-right {
+  .animate-slide-out-right,
+  .animate-sheet-up,
+  .animate-sheet-down {
     animation-duration: 0.01ms !important;
   }
 }

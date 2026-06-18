@@ -52,7 +52,7 @@ export function Header() {
     }, []);
 
     return (
-        <header className="glass sticky top-0 z-50 px-4 md:px-6 py-3 flex justify-between items-center shadow-sm">
+        <header className="glass sticky top-0 z-50 px-4 md:px-6 py-3 hidden md:flex justify-between items-center shadow-sm">
             <div className="flex items-center gap-2">
                 {/* Back Button - shown when not on home page */}
                 {!isHomePage && (
@@ -124,8 +124,8 @@ export function Header() {
                 {/* Split Screen Toggle - Desktop: toggle switch, Mobile: button */}
                 {mounted && (
                     <>
-                        {/* Desktop: Toggle switch */}
-                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
+                        {/* Toggle switch */}
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
                             <span className="text-sm text-gray-700 font-medium">Split View</span>
                             <button
                                 onClick={() => setSplitScreenEnabled(!splitScreenEnabled)}
@@ -142,18 +142,6 @@ export function Header() {
                                 />
                             </button>
                         </div>
-
-                        {/* Mobile: Color-changing button */}
-                        <button
-                            onClick={() => setSplitScreenEnabled(!splitScreenEnabled)}
-                            className={`md:hidden px-3 py-1.5 rounded-lg border transition-colors
-                                       ${splitScreenEnabled
-                                    ? 'bg-gradient-to-r from-purple-500 to-teal-400 border-purple-400 text-white'
-                                    : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'}`}
-                            title={splitScreenEnabled ? 'Disable split screen' : 'Enable split screen'}
-                        >
-                            <span className="text-xs font-medium">Split View</span>
-                        </button>
                     </>
                 )}
 

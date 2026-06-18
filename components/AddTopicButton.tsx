@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AddTopicForm } from './AddTopicForm';
 import { Modal } from './Modal';
+import { useNav } from './NavProvider';
 
 export function AddTopicButton({ unitId, isCustom }: { unitId: string; isCustom?: boolean }) {
     const [isOpen, setIsOpen] = useState(false);
+    const { setPrimaryAction } = useNav();
+
+    // Drive the mobile bottom bar's "+" on the paper page.
+    useEffect(() => {
+        setPrimaryAction({ label: 'Add topic', onClick: () => setIsOpen(true) });
+        return () => setPrimaryAction(null);
+    }, [setPrimaryAction]);
 
     return (
         <>
@@ -18,7 +26,7 @@ export function AddTopicButton({ unitId, isCustom }: { unitId: string; isCustom?
                           shadow-purple-500/30 hover:shadow-purple-500/50
                           hover:scale-110 active:scale-100
                           transition-all duration-200
-                          flex items-center justify-center
+                          hidden md:flex items-center justify-center
                           group"
                 aria-label="Add Topic"
                 title="Add Community Topic"

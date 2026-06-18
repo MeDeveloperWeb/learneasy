@@ -6,6 +6,8 @@ import { SplitScreenProvider } from "@/components/SplitScreenProvider";
 import { SplitScreenLayout } from "@/components/SplitScreenLayout";
 import { UserProvider } from "@/components/UserProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { NavProvider } from "@/components/NavProvider";
+import { BottomBar } from "@/components/BottomBar";
 
 // Runs before paint to set the theme class on <html>, avoiding a light flash.
 const themeInitScript = `
@@ -43,9 +45,12 @@ export default function RootLayout({
           <UserProvider>
             <AdminProvider>
               <SplitScreenProvider>
-                <SplitScreenLayout>
-                  {children}
-                </SplitScreenLayout>
+                <NavProvider>
+                  <SplitScreenLayout>
+                    {children}
+                  </SplitScreenLayout>
+                  <BottomBar />
+                </NavProvider>
               </SplitScreenProvider>
             </AdminProvider>
           </UserProvider>
