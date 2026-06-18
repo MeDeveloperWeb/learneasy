@@ -644,6 +644,12 @@ pre[class*="language-"] code {
 
 /* ---- Backgrounds ---- */
 .dark .bg-white { background-color: #1e1e22; }
+/* Opacity variants emit their own class (e.g. .bg-white\/90), so the rule above
+   doesn't catch them — remap each used fraction or modal/sticky headers stay
+   white while their text flips light (invisible). */
+.dark .bg-white\/95 { background-color: rgba(30, 30, 34, 0.95); }
+.dark .bg-white\/90 { background-color: rgba(30, 30, 34, 0.9); }
+.dark .bg-white\/80 { background-color: rgba(30, 30, 34, 0.8); }
 .dark .bg-gray-50 { background-color: #1b1b1f; }
 .dark .bg-gray-100 { background-color: #26262b; }
 .dark .bg-gray-200 { background-color: #2f2f35; }
