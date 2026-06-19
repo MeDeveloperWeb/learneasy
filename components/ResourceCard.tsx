@@ -235,7 +235,7 @@ export function ResourceCard({ resource, index = 0 }: ResourceCardProps) {
             <div className="p-4 relative">
                 {/* Edit/Delete Buttons for Owner or Admin */}
                 {(isAdmin || isOwner) && (
-                    <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="absolute top-2 right-2 flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all">
                         {isOwner && (
                             <button
                                 onClick={handleEdit}

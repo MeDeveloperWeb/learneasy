@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { checkAdminAccess } from '@/lib/utils';
 import { deleteFromSupabaseStorage } from '@/lib/supabaseStorage';
+import { bustResources, bustPaperOfTopic } from '@/lib/revalidation';
 
 export async function DELETE(
     request: Request,
@@ -42,6 +43,9 @@ export async function DELETE(
         await prisma.resource.delete({
             where: { id },
         });
+
+        bustResources(resource.topicId);
+        await bustPaperOfTopic(resource.topicId);
 
         return NextResponse.json({ success: true });
     } catch (error) {

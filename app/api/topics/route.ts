@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { checkAdminAccess } from '@/lib/utils';
+import { bustPaper, bustUnit } from '@/lib/revalidation';
 import type { Unit, Topic } from '@prisma/client';
 
 export async function GET(request: Request) {
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
         // Check if unit is custom
         const unit = await prisma.unit.findUnique({
             where: { id: unitId },
-            select: { isCustom: true }
+            select: { isCustom: true, paperId: true }
         });
 
         if (!unit) {
@@ -76,6 +77,10 @@ export async function POST(request: Request) {
                 order: newOrder
             },
         });
+
+        // New topic shows up in the unit's nav and the paper's topic list.
+        bustUnit(unitId);
+        bustPaper(unit.paperId);
 
         return NextResponse.json(topic, { status: 201 });
     } catch (error) {

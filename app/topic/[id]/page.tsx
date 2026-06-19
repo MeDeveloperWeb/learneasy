@@ -7,37 +7,33 @@ import { ResourceCard } from '@/components/ResourceCard';
 import { TopicSearchButtons } from '@/components/TopicSearchButtons';
 import { TopicProvider } from '@/components/TopicProvider';
 import { TopicNavConfig } from '@/components/TopicNavConfig';
+import { getTopic, getTopicResources, getUnitTopics } from '@/lib/queries';
 
-export const dynamic = 'force-dynamic';
+// Prerender every topic at build, ISR-refresh as a fallback, and render any
+// not-yet-built id on demand (then cache it). Real updates ride on-demand tags.
+// (Segment config must be a literal; keep in sync with REVALIDATE in lib/cache-tags.)
+export const revalidate = 604800; // 1 week (lazy backstop; updates ride on-demand tags)
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+    try {
+        const topics = await prisma.topic.findMany({ select: { id: true } });
+        return topics.map((t) => ({ id: t.id }));
+    } catch {
+        return [];
+    }
+}
 
 export default async function TopicPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
-    const topic = await prisma.topic.findUnique({
-        where: { id },
-        include: {
-            unit: {
-                include: { paper: true }
-            }
-        }
-    });
+    const topic = await getTopic(id);
 
     if (!topic) {
         notFound();
     }
 
-    const resources = await prisma.resource.findMany({
-        where: { topicId: id },
-        orderBy: [
-            { likesCount: 'desc' },
-            { createdAt: 'desc' },
-        ],
-        include: {
-            likes: {
-                select: { userId: true },
-            },
-        },
-    });
+    const resources = await getTopicResources(id);
 
     // Extract resource URLs for split screen context
     const resourceUrls = resources
@@ -45,14 +41,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
         .map(r => r.url!);
 
     // Find the next topic in the same unit (same ordering as the paper page)
-    const unitTopics = await prisma.topic.findMany({
-        where: { unitId: topic.unitId },
-        orderBy: [
-            { order: 'asc' },
-            { createdAt: 'asc' },
-        ],
-        select: { id: true, title: true },
-    });
+    const unitTopics = await getUnitTopics(topic.unitId);
     const currentIndex = unitTopics.findIndex((t) => t.id === id);
     const prevTopic = currentIndex > 0 ? unitTopics[currentIndex - 1] : null;
     const nextTopic =

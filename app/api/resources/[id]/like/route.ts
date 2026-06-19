@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { bustResources } from '@/lib/revalidation';
 
 export async function POST(
   request: Request,
@@ -50,6 +51,9 @@ export async function POST(
         }),
       ]);
 
+      // Count + sort order on the topic page changed.
+      bustResources(resource.topicId);
+
       return NextResponse.json({
         liked: false,
         likesCount: Math.max(0, resource.likesCount - 1),
@@ -68,6 +72,9 @@ export async function POST(
           data: { likesCount: { increment: 1 } },
         }),
       ]);
+
+      // Count + sort order on the topic page changed.
+      bustResources(resource.topicId);
 
       return NextResponse.json({
         liked: true,

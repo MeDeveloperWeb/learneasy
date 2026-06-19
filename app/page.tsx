@@ -1,9 +1,7 @@
-import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { AddPaperForm } from '@/components/AddPaperForm';
-
-export const dynamic = 'force-dynamic';
+import { getPapers } from '@/lib/queries';
 
 const examDateFormatter = new Intl.DateTimeFormat('en-GB', {
   day: '2-digit',
@@ -12,8 +10,9 @@ const examDateFormatter = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'UTC',
 });
 
-function formatExamDate(date: Date) {
-  return examDateFormatter.format(date);
+// Date | string: unstable_cache may rehydrate the value, so normalize defensively.
+function formatExamDate(date: Date | string) {
+  return examDateFormatter.format(new Date(date));
 }
 
 export default async function Home({
@@ -24,10 +23,7 @@ export default async function Home({
   const { sort } = await searchParams;
   const direction = sort === 'desc' ? 'desc' : 'asc';
 
-  const papers = await prisma.paper.findMany({
-    orderBy: { examDate: { sort: direction, nulls: 'last' } },
-    include: { _count: { select: { units: true } } }
-  });
+  const papers = await getPapers(direction);
 
   return (
     <div className="min-h-screen pb-24 md:pb-20">

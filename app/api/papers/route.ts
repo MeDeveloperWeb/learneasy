@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { checkAdminAccess } from '@/lib/utils';
+import { bustPapers } from '@/lib/revalidation';
 
 export async function GET() {
     try {
@@ -29,6 +30,8 @@ export async function POST(request: Request) {
         const paper = await prisma.paper.create({
             data: { title },
         });
+
+        bustPapers();
 
         return NextResponse.json(paper, { status: 201 });
     } catch (error) {

@@ -4,26 +4,27 @@ import { notFound } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { AddTopicButton } from '@/components/AddTopicButton';
 import { UnitSection } from '@/components/UnitSection';
+import { getPaper } from '@/lib/queries';
 
-export const dynamic = 'force-dynamic';
+// Prerender every paper at build, ISR-refresh as a fallback, and render any
+// not-yet-built id on demand (then cache it). Real updates ride on-demand tags.
+// (Segment config must be a literal; keep in sync with REVALIDATE in lib/cache-tags.)
+export const revalidate = 604800; // 1 week (lazy backstop; updates ride on-demand tags)
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+    try {
+        const papers = await prisma.paper.findMany({ select: { id: true } });
+        return papers.map((p) => ({ id: p.id }));
+    } catch {
+        return [];
+    }
+}
 
 export default async function PaperPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
-    const paper = await prisma.paper.findUnique({
-        where: { id },
-        include: {
-            units: {
-                orderBy: { createdAt: 'asc' },
-                include: {
-                    topics: {
-                        orderBy: { order: 'asc' },
-                        include: { _count: { select: { resources: true } } }
-                    }
-                }
-            }
-        }
-    });
+    const paper = await getPaper(id);
 
     if (!paper) {
         notFound();

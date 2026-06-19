@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { checkAdminAccess } from '@/lib/utils';
 import { fetchUrlMetadata } from '@/lib/metadata';
 import { deleteFromSupabaseStorage } from '@/lib/supabaseStorage';
+import { bustResources, bustPaperOfTopic } from '@/lib/revalidation';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -93,6 +94,10 @@ export async function POST(request: Request) {
             data: resourceData,
         });
 
+        // New card on the topic page; paper page's resource count also changes.
+        bustResources(topicId);
+        await bustPaperOfTopic(topicId);
+
         return NextResponse.json(resource, { status: 201 });
     } catch (error) {
         console.error('Error creating resource:', error);
@@ -145,6 +150,9 @@ export async function DELETE(request: Request) {
         await prisma.resource.delete({
             where: { id: resourceId },
         });
+
+        bustResources(resource.topicId);
+        await bustPaperOfTopic(resource.topicId);
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -199,6 +207,9 @@ export async function PATCH(request: Request) {
             where: { id },
             data: updateData,
         });
+
+        // Edit changes card content but not the count, so only the list cache.
+        bustResources(resource.topicId);
 
         return NextResponse.json(updatedResource);
     } catch (_error) {

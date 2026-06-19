@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { checkAdminAccess } from '@/lib/utils';
+import { bustTopic, bustUnit, bustPaper, bustTopicTree } from '@/lib/revalidation';
 
 export async function PUT(
     request: Request,
@@ -29,6 +30,9 @@ export async function PUT(
             data: updateData,
         });
 
+        // Title/order change ripples to this page, sibling nav, and paper list.
+        await bustTopicTree(id);
+
         return NextResponse.json(topic);
     } catch (error) {
         return NextResponse.json({ error: 'Failed to update topic' }, { status: 500 });
@@ -45,9 +49,20 @@ export async function DELETE(
 
     try {
         const { id } = await params;
+
+        // Capture the tree before the row is gone, so we know which caches to bust.
+        const existing = await prisma.topic.findUnique({
+            where: { id },
+            select: { unitId: true, unit: { select: { paperId: true } } },
+        });
+
         await prisma.topic.delete({
             where: { id },
         });
+
+        bustTopic(id);
+        if (existing?.unitId) bustUnit(existing.unitId);
+        if (existing?.unit?.paperId) bustPaper(existing.unit.paperId);
 
         return NextResponse.json({ success: true });
     } catch (error) {
