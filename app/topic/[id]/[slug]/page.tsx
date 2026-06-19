@@ -1,13 +1,16 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { AddResourceButton } from '@/components/AddResourceButton';
 import { ResourceCard } from '@/components/ResourceCard';
 import { TopicSearchButtons } from '@/components/TopicSearchButtons';
 import { TopicProvider } from '@/components/TopicProvider';
 import { TopicNavConfig } from '@/components/TopicNavConfig';
+import { JsonLd } from '@/components/JsonLd';
 import { getTopic, getTopicResources, getUnitTopics } from '@/lib/queries';
+import { SITE_NAME, absoluteUrl, slugify, topicPath, paperPath } from '@/lib/seo';
 
 // Prerender every topic at build, ISR-refresh as a fallback, and render any
 // not-yet-built id on demand (then cache it). Real updates ride on-demand tags.
@@ -15,22 +18,76 @@ import { getTopic, getTopicResources, getUnitTopics } from '@/lib/queries';
 export const revalidate = 604800; // 1 week (lazy backstop; updates ride on-demand tags)
 export const dynamicParams = true;
 
+type RouteParams = { id: string; slug: string };
+
 export async function generateStaticParams() {
     try {
-        const topics = await prisma.topic.findMany({ select: { id: true } });
-        return topics.map((t) => ({ id: t.id }));
+        const topics = await prisma.topic.findMany({ select: { id: true, title: true } });
+        // Prerender the canonical id/slug URL for each topic.
+        return topics.map((t) => ({ id: t.id, slug: slugify(t.title) }));
     } catch {
         return [];
     }
 }
 
-export default async function TopicPage({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata(
+    { params }: { params: Promise<RouteParams> },
+): Promise<Metadata> {
     const { id } = await params;
+    const topic = await getTopic(id);
+
+    if (!topic) {
+        return { title: 'Topic not found', robots: { index: false, follow: false } };
+    }
+
+    const paperTitle = topic.unit.paper.title;
+    const unitTitle = topic.unit.title;
+    const canonicalUrl = absoluteUrl(topicPath(id, topic.title));
+    const title = `${topic.title} — ${paperTitle}`;
+    const description =
+        `${topic.title}: study notes, video lectures, PDFs and curated resources ` +
+        `for ${paperTitle} (${unitTitle}). Free, community-curated learning ` +
+        `materials on ${SITE_NAME}.`;
+
+    return {
+        title,
+        description,
+        keywords: [topic.title, paperTitle, unitTitle, 'notes', 'resources', 'study material'],
+        alternates: {
+            canonical: canonicalUrl,
+            // Markdown twin for AI/LLM agents (served via middleware -> /api/md).
+            types: { 'text/markdown': `${canonicalUrl}.md` },
+        },
+        openGraph: {
+            type: 'article',
+            url: canonicalUrl,
+            title: `${topic.title} — ${paperTitle} | ${SITE_NAME}`,
+            description,
+            siteName: SITE_NAME,
+        },
+        twitter: {
+            card: 'summary',
+            title: `${topic.title} — ${paperTitle}`,
+            description,
+        },
+    };
+}
+
+export default async function TopicPage({ params }: { params: Promise<RouteParams> }) {
+    const { id, slug } = await params;
 
     const topic = await getTopic(id);
 
     if (!topic) {
         notFound();
+    }
+
+    // The id is the key; the slug is cosmetic. If the slug is stale/typo'd (e.g.
+    // the title changed since the link was shared), 308 to the canonical URL so
+    // there's a single indexable address. The matching slug renders normally.
+    const canonicalSlug = slugify(topic.title);
+    if (slug !== canonicalSlug) {
+        permanentRedirect(topicPath(id, topic.title));
     }
 
     const resources = await getTopicResources(id);
@@ -49,8 +106,46 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
             ? unitTopics[currentIndex + 1]
             : null;
 
+    const paper = topic.unit.paper;
+    const canonicalUrl = absoluteUrl(topicPath(id, topic.title));
+
+    // Structured data: breadcrumb trail + the topic itself as a learning resource.
+    const jsonLd = [
+        {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+                { '@type': 'ListItem', position: 1, name: SITE_NAME, item: absoluteUrl('/') },
+                {
+                    '@type': 'ListItem',
+                    position: 2,
+                    name: paper.title,
+                    item: absoluteUrl(paperPath(paper.id, paper.title)),
+                },
+                { '@type': 'ListItem', position: 3, name: topic.unit.title },
+                { '@type': 'ListItem', position: 4, name: topic.title, item: canonicalUrl },
+            ],
+        },
+        {
+            '@context': 'https://schema.org',
+            '@type': 'LearningResource',
+            name: topic.title,
+            url: canonicalUrl,
+            learningResourceType: 'Topic',
+            educationalLevel: paper.title,
+            isPartOf: {
+                '@type': 'Course',
+                name: paper.title,
+                url: absoluteUrl(paperPath(paper.id, paper.title)),
+            },
+            isAccessibleForFree: true,
+            inLanguage: 'en',
+        },
+    ];
+
     return (
         <TopicProvider topicId={id} topicName={topic.title} paperName={topic.unit.paper.title} resourceUrls={resourceUrls}>
+            <JsonLd data={jsonLd} />
             <TopicNavConfig prev={prevTopic} next={nextTopic} />
             <div className="min-h-screen pb-24 md:pb-28">
                 <Header />
@@ -68,7 +163,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                     </Link>
                     <span className="text-gray-300">/</span>
                     <Link
-                        href={`/paper/${topic.unit.paper.id}`}
+                        href={paperPath(topic.unit.paper.id, topic.unit.paper.title)}
                         className="text-gray-400 hover:text-purple-500 transition-colors"
                     >
                         {topic.unit.paper.title}
@@ -120,7 +215,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                 </div>
 
                 {resources.length === 0 && (
-                    <div className="text-center py-20 text-gray-400 bg-white rounded-2xl 
+                    <div className="text-center py-20 text-gray-400 bg-white rounded-2xl
                                    border-2 border-dashed border-gray-200 animate-fade-in">
                         <div className="text-5xl mb-4">🔗</div>
                         <p className="font-medium">No resources yet</p>
@@ -133,7 +228,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                     <div className="mt-16 pt-6 border-t border-gray-100 hidden md:flex justify-between items-center gap-6 animate-fade-in">
                         {prevTopic ? (
                             <Link
-                                href={`/topic/${prevTopic.id}`}
+                                href={topicPath(prevTopic.id, prevTopic.title)}
                                 className="group flex items-center gap-2 min-w-0"
                             >
                                 <svg className="w-4 h-4 flex-shrink-0 text-gray-400 transition-all
@@ -155,7 +250,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
 
                         {nextTopic ? (
                             <Link
-                                href={`/topic/${nextTopic.id}`}
+                                href={topicPath(nextTopic.id, nextTopic.title)}
                                 className="group flex items-center gap-2 min-w-0 text-right"
                             >
                                 <span className="flex flex-col items-end leading-tight min-w-0">

@@ -1,10 +1,13 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { AddTopicButton } from '@/components/AddTopicButton';
 import { UnitSection } from '@/components/UnitSection';
+import { JsonLd } from '@/components/JsonLd';
 import { getPaper } from '@/lib/queries';
+import { SITE_NAME, absoluteUrl, slugify, paperPath, topicPath } from '@/lib/seo';
 
 // Prerender every paper at build, ISR-refresh as a fallback, and render any
 // not-yet-built id on demand (then cache it). Real updates ride on-demand tags.
@@ -12,17 +15,63 @@ import { getPaper } from '@/lib/queries';
 export const revalidate = 604800; // 1 week (lazy backstop; updates ride on-demand tags)
 export const dynamicParams = true;
 
+type RouteParams = { id: string; slug: string };
+
 export async function generateStaticParams() {
     try {
-        const papers = await prisma.paper.findMany({ select: { id: true } });
-        return papers.map((p) => ({ id: p.id }));
+        const papers = await prisma.paper.findMany({ select: { id: true, title: true } });
+        return papers.map((p) => ({ id: p.id, slug: slugify(p.title) }));
     } catch {
         return [];
     }
 }
 
-export default async function PaperPage({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata(
+    { params }: { params: Promise<RouteParams> },
+): Promise<Metadata> {
     const { id } = await params;
+    const paper = await getPaper(id);
+
+    if (!paper) {
+        return { title: 'Paper not found', robots: { index: false, follow: false } };
+    }
+
+    const canonicalUrl = absoluteUrl(paperPath(id, paper.title));
+    const topicNames = paper.units
+        .flatMap((u) => u.topics.map((t) => t.title))
+        .slice(0, 8);
+    const codePart = paper.code ? ` (${paper.code})` : '';
+    const title = `${paper.title}${codePart}`;
+    const description =
+        `${paper.title}${codePart}: ${paper.units.length} units` +
+        (topicNames.length
+            ? ` covering ${topicNames.join(', ')}.`
+            : '.') +
+        ` Free study notes, video lectures, PDFs and curated resources on ${SITE_NAME}.`;
+
+    return {
+        title,
+        description,
+        keywords: [paper.title, paper.code, ...topicNames, 'notes', 'study material']
+            .filter(Boolean) as string[],
+        alternates: {
+            canonical: canonicalUrl,
+            // Markdown twin for AI/LLM agents (served via middleware -> /api/md).
+            types: { 'text/markdown': `${canonicalUrl}.md` },
+        },
+        openGraph: {
+            type: 'website',
+            url: canonicalUrl,
+            title: `${title} | ${SITE_NAME}`,
+            description,
+            siteName: SITE_NAME,
+        },
+        twitter: { card: 'summary', title, description },
+    };
+}
+
+export default async function PaperPage({ params }: { params: Promise<RouteParams> }) {
+    const { id, slug } = await params;
 
     const paper = await getPaper(id);
 
@@ -30,8 +79,46 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
         notFound();
     }
 
+    // id is the key; slug is cosmetic. Stale/typo'd slug → 308 to canonical.
+    const canonicalSlug = slugify(paper.title);
+    if (slug !== canonicalSlug) {
+        permanentRedirect(paperPath(id, paper.title));
+    }
+
+    const canonicalUrl = absoluteUrl(paperPath(id, paper.title));
+
+    // Structured data: breadcrumb + the paper as a Course with its topics listed.
+    const jsonLd = [
+        {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+                { '@type': 'ListItem', position: 1, name: SITE_NAME, item: absoluteUrl('/') },
+                { '@type': 'ListItem', position: 2, name: paper.title, item: canonicalUrl },
+            ],
+        },
+        {
+            '@context': 'https://schema.org',
+            '@type': 'Course',
+            name: paper.title,
+            ...(paper.code ? { courseCode: paper.code } : {}),
+            url: canonicalUrl,
+            description:
+                `Study notes, video lectures, PDFs and curated resources for ${paper.title}.`,
+            provider: { '@type': 'Organization', name: SITE_NAME, url: absoluteUrl('/') },
+            hasPart: paper.units.flatMap((u) =>
+                u.topics.map((t) => ({
+                    '@type': 'LearningResource',
+                    name: t.title,
+                    url: absoluteUrl(topicPath(t.id, t.title)),
+                }))
+            ),
+        },
+    ];
+
     return (
         <div className="min-h-screen pb-24 md:pb-20 relative">
+            <JsonLd data={jsonLd} />
             <Header />
 
             <main className="max-w-7xl mx-auto px-6 py-12">
@@ -51,10 +138,10 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
                 </nav>
 
                 {/* Paper Header Card */}
-                <div className="bg-white rounded-2xl p-8 mb-10 shadow-sm border border-gray-100 
+                <div className="bg-white rounded-2xl p-8 mb-10 shadow-sm border border-gray-100
                                animate-slide-up" style={{ opacity: 0 }}>
                     <div className="flex items-start gap-5">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-teal-400 
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-teal-400
                                        flex items-center justify-center text-white font-bold text-2xl
                                        shadow-lg shadow-purple-500/20">
                             {paper.title.charAt(0)}
@@ -102,7 +189,7 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
                 </div>
 
                 {paper.units.length === 0 && (
-                    <div className="text-center py-20 text-gray-400 bg-white rounded-2xl 
+                    <div className="text-center py-20 text-gray-400 bg-white rounded-2xl
                                    border-2 border-dashed border-gray-200 animate-fade-in">
                         <div className="text-5xl mb-4">📖</div>
                         <p className="font-medium">No units found</p>

@@ -8,6 +8,7 @@ import { useSplitScreen } from "./SplitScreenProvider";
 import { useTheme } from "./ThemeProvider";
 import { MobileMenuSheet } from "./MobileMenuSheet";
 import { GlobalSearch } from "./GlobalSearch";
+import { topicPath } from "@/lib/seo";
 
 /* ----------------------------------------------------------------------------
  * Mobile-only contextual bottom bar (app tab-bar style). Hidden at md+ where the
@@ -165,7 +166,7 @@ export function BottomBar() {
     if (isTopic) {
         middle.push(
             prev ? (
-                <Slot key="prev" icon="prev" label="Prev" href={`/topic/${prev.id}`} ariaLabel={`Previous topic: ${prev.title}`} />
+                <Slot key="prev" icon="prev" label="Prev" href={topicPath(prev.id, prev.title)} ariaLabel={`Previous topic: ${prev.title}`} />
             ) : (
                 <EmptySlot key="prev" icon="prev" label="Prev" />
             )
@@ -175,7 +176,7 @@ export function BottomBar() {
         }
         middle.push(
             next ? (
-                <Slot key="next" icon="next" label="Next" href={`/topic/${next.id}`} ariaLabel={`Next topic: ${next.title}`} />
+                <Slot key="next" icon="next" label="Next" href={topicPath(next.id, next.title)} ariaLabel={`Next topic: ${next.title}`} />
             ) : (
                 <EmptySlot key="next" icon="next" label="Next" />
             )

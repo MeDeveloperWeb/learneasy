@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { topicPath } from '@/lib/seo';
 
 interface SearchResult {
   id: string;
@@ -74,7 +75,7 @@ export function GlobalSearch({ isOpen, onClose, splitScreenEnabled = false }: Gl
   }, [query]);
 
   const handleResultClick = (result: SearchResult) => {
-    router.push(`/topic/${result.id}`);
+    router.push(topicPath(result.id, result.title));
     onClose();
   };
 

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useAdmin } from './AdminProvider';
 import { useRouter } from 'next/navigation';
+import { topicPath } from '@/lib/seo';
 
 interface TopicItemProps {
     topic: {
@@ -103,7 +104,7 @@ export function TopicItem({ topic }: TopicItemProps) {
                 <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-teal-400 
                                group-hover:scale-125 transition-transform" />
                 <Link
-                    href={`/topic/${topic.id}`}
+                    href={topicPath(topic.id, topic.title)}
                     className="text-gray-700 hover:text-purple-600 transition-colors font-medium"
                 >
                     {topic.title}
