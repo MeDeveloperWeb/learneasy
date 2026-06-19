@@ -7,13 +7,15 @@ import { unstable_cache } from 'next/cache';
 import { prisma } from './prisma';
 import { tags, REVALIDATE } from './cache-tags';
 
-type SortDir = 'asc' | 'desc';
-
-/** Home: all papers + unit counts, sorted by exam date. */
+/**
+ * Home: all papers + unit counts. Returned in a single (ascending) order — the
+ * home grid re-sorts client-side, so the page itself can stay static (no
+ * `?sort` searchParam forcing a dynamic render).
+ */
 export const getPapers = unstable_cache(
-  async (direction: SortDir) =>
+  async () =>
     prisma.paper.findMany({
-      orderBy: { examDate: { sort: direction, nulls: 'last' } },
+      orderBy: { examDate: { sort: 'asc', nulls: 'last' } },
       include: { _count: { select: { units: true } } },
     }),
   ['papers'],
