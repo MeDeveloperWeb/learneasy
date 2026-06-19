@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { useSplitScreen } from '@/components/SplitScreenProvider';
 import { getPromptTemplate, fillTemplate } from '@/lib/gemini';
 
@@ -11,6 +11,11 @@ interface TopicSearchButtonsProps {
 export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
     const { openInSplitScreen, openGeminiInSplitScreen, currentPaperName, splitScreenEnabled } = useSplitScreen();
     const [mounted, setMounted] = useState(false);
+    // Unique gradient id per instance. This component renders twice on the topic
+    // page (mobile + desktop wrappers); a shared id resolves to the first match,
+    // which is `display:none` on the other breakpoint, so its gradient never
+    // paints and the star turns invisible. useId() keeps each instance's fill valid.
+    const gradId = `geminiStar-${useId().replace(/:/g, '')}`;
 
     useEffect(() => {
         setMounted(true);
@@ -81,10 +86,10 @@ export function TopicSearchButtons({ topicTitle }: TopicSearchButtonsProps) {
                          text-gray-700 hover:text-purple-700 font-medium text-sm shadow-sm hover:shadow-md active:scale-95"
                 title="Ask Gemini about this topic"
             >
-                <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="url(#geminiStar)">
+                <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill={`url(#${gradId})`}>
                     <defs>
-                        <linearGradient id="geminiStar" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                            <stop stopColor="#4285F4" />
+                        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stopColor="#4285F4" />
                             <stop offset="0.5" stopColor="#9B72CB" />
                             <stop offset="1" stopColor="#D96570" />
                         </linearGradient>

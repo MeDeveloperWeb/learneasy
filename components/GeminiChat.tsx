@@ -464,6 +464,17 @@ export function GeminiChat({ onClose }: { onClose: () => void }) {
               account&apos;s free quota and plan — not ours.
             </p>
 
+            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-purple-200 bg-purple-50 px-3 py-2.5">
+              <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <p className="text-sm text-gray-700">
+                <strong>We never save your key.</strong> It stays in your browser
+                (localStorage) and goes straight to Google — it never touches our servers.
+              </p>
+            </div>
+
             <ol className="text-sm text-gray-700 space-y-2 mb-5 list-decimal pl-5">
               <li>
                 Open{" "}
