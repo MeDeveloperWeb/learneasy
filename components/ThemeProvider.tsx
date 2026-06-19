@@ -26,14 +26,15 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    // Initialise from the class the inline script (in layout) already set on <html>,
-    // so client state matches the pre-paint DOM and there is no flash / mismatch.
-    const [theme, setThemeState] = useState<Theme>(() => {
-        if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
-            return 'dark';
-        }
-        return 'light';
-    });
+    // Deterministic initial value: SSR can't know the user's theme, so it always
+    // renders 'light'. The first CLIENT render must match that, so we also start at
+    // 'light' here (NOT by reading the DOM/localStorage) — otherwise theme-dependent
+    // UI like the toggle (icon/label/aria) renders 'dark' on the client vs 'light'
+    // on the server, a hydration mismatch that makes React regenerate <html> and
+    // drop the pre-paint `.dark` class (the "reloads light / two clicks" + flash bug).
+    // The real theme is applied to <html> pre-paint by the inline script (no visual
+    // flash) and synced into React state in the mount effect below.
+    const [theme, setThemeState] = useState<Theme>('light');
 
     const setTheme = (next: Theme) => {
         setThemeState(next);
@@ -46,6 +47,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     };
 
     const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
+
+    // Re-assert the theme once, right after mount. A hydration mismatch on a page
+    // (e.g. streamed/Suspense content) can make React regenerate <html>, dropping
+    // the `.dark` class the inline script set pre-paint — leaving state='dark' but
+    // the DOM in light mode (the "reloads light / needs two toggle clicks" bug).
+    // localStorage is the source of truth, so read it and force DOM + state to agree.
+    useEffect(() => {
+        let saved: Theme | null = null;
+        try {
+            const v = localStorage.getItem('theme');
+            if (v === 'dark' || v === 'light') saved = v;
+        } catch {
+            // ignore storage errors (private mode etc.)
+        }
+        const resolved: Theme =
+            saved ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        setThemeState(resolved);
+        applyTheme(resolved);
+    }, []);
 
     // Keep in sync if another tab changes the theme.
     useEffect(() => {
